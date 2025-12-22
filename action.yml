@@ -1,0 +1,204 @@
+name: 'DeepSweep Security Gateway'
+description: 'The #1 Security Gateway for Agentic AI Code Assistants - Validate configurations before your IDE loads them'
+author: 'DeepSweep'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Path to validate'
+    required: false
+    default: '.'
+
+  mode:
+    description: 'Validation mode: observe or enforce'
+    required: false
+    default: 'observe'
+
+  fail-on-critical:
+    description: 'Fail workflow if critical issues found (overrides mode)'
+    required: false
+    default: 'true'
+
+  fail-on-high:
+    description: 'Fail workflow if high severity issues found'
+    required: false
+    default: 'false'
+
+  format:
+    description: 'Output format: text, json, or sarif'
+    required: false
+    default: 'sarif'
+
+  api-key:
+    description: 'DeepSweep API key for Pro features (optional)'
+    required: false
+    default: ''
+
+  upload-sarif:
+    description: 'Upload SARIF to GitHub Security tab'
+    required: false
+    default: 'true'
+
+outputs:
+  safe:
+    description: 'Whether validation passed (true/false)'
+    value: ${{ steps.scan.outputs.safe }}
+
+  score:
+    description: 'Security score (0-100)'
+    value: ${{ steps.scan.outputs.score }}
+
+  findings-count:
+    description: 'Number of findings'
+    value: ${{ steps.scan.outputs.findings_count }}
+
+  sarif-file:
+    description: 'Path to SARIF file'
+    value: ${{ steps.scan.outputs.sarif_file }}
+
+  status:
+    description: 'PASS or FAIL'
+    value: ${{ steps.scan.outputs.status }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install DeepSweep
+      shell: bash
+      run: |
+        pip install deepsweep-ai --quiet
+        echo "DeepSweep installed"
+
+    - name: Run Security Gateway
+      id: scan
+      shell: bash
+      env:
+        DEEPSWEEP_API_KEY: ${{ inputs.api-key }}
+      run: |
+        echo "Running DeepSweep Security Gateway..."
+        echo "Validating ${{ inputs.path }}..."
+        echo ""
+
+        # Determine mode flag
+        MODE_FLAG=""
+        if [ "${{ inputs.mode }}" == "enforce" ]; then
+          MODE_FLAG="--enforce"
+        fi
+
+        # Run scan
+        set +e
+        deepsweep scan ${{ inputs.path }} \
+          $MODE_FLAG \
+          --format json \
+          --output deepsweep-results.json
+        SCAN_EXIT=$?
+        set -e
+
+        # Parse results
+        if [ -f deepsweep-results.json ]; then
+          SAFE=$(jq -r '.safe' deepsweep-results.json)
+          SCORE=$(jq -r '.score' deepsweep-results.json)
+          FINDINGS=$(jq -r '.findings_count' deepsweep-results.json)
+          CRITICAL=$(jq -r '.findings | map(select(.severity == "critical")) | length' deepsweep-results.json)
+          HIGH=$(jq -r '.findings | map(select(.severity == "high")) | length' deepsweep-results.json)
+
+          echo "safe=$SAFE" >> $GITHUB_OUTPUT
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "findings_count=$FINDINGS" >> $GITHUB_OUTPUT
+
+          # Print summary
+          echo ""
+          echo "────────────────────────────────────────────"
+          if [ "$SAFE" == "true" ]; then
+            echo "PASS - Score: $SCORE/100"
+          else
+            echo "FAIL - Score: $SCORE/100"
+            echo "Critical: $CRITICAL | High: $HIGH"
+          fi
+          echo "────────────────────────────────────────────"
+        else
+          echo "safe=unknown" >> $GITHUB_OUTPUT
+          echo "score=0" >> $GITHUB_OUTPUT
+          echo "findings_count=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate SARIF
+      if: inputs.format == 'sarif' || inputs.upload-sarif == 'true'
+      shell: bash
+      run: |
+        if [ -f deepsweep-results.json ]; then
+          deepsweep scan ${{ inputs.path }} --format sarif --output deepsweep.sarif
+          echo "sarif_file=deepsweep.sarif" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload SARIF to GitHub Security
+      if: inputs.upload-sarif == 'true' && hashFiles('deepsweep.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: deepsweep.sarif
+        category: deepsweep
+
+    - name: Generate Job Summary
+      if: always()
+      shell: bash
+      run: |
+        if [ -f deepsweep-results.json ]; then
+          SAFE=$(jq -r '.safe' deepsweep-results.json)
+          SCORE=$(jq -r '.score' deepsweep-results.json)
+          FINDINGS=$(jq -r '.findings_count' deepsweep-results.json)
+          CRITICAL=$(jq -r '.findings | map(select(.severity == "critical")) | length' deepsweep-results.json)
+          HIGH=$(jq -r '.findings | map(select(.severity == "high")) | length' deepsweep-results.json)
+
+          if [ "$SAFE" == "true" ]; then
+            STATUS="PASS"
+          else
+            STATUS="FAIL"
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+        ## DeepSweep Security Gateway
+
+        **Status:** $STATUS
+
+        | Metric | Value |
+        |--------|-------|
+        | Score | $SCORE/100 |
+        | Critical | $CRITICAL |
+        | High | $HIGH |
+        | Total Issues | $FINDINGS |
+
+        ---
+        *Validated by [DeepSweep](https://deepsweep.ai)*
+        EOF
+        fi
+
+    - name: Check Failure Conditions
+      if: always()
+      shell: bash
+      run: |
+        if [ -f deepsweep-results.json ]; then
+          CRITICAL=$(jq -r '.findings | map(select(.severity == "critical")) | length' deepsweep-results.json)
+          HIGH=$(jq -r '.findings | map(select(.severity == "high")) | length' deepsweep-results.json)
+
+          # Check critical
+          if [ "${{ inputs.fail-on-critical }}" == "true" ] && [ "$CRITICAL" -gt 0 ]; then
+            echo "FAIL: Critical vulnerabilities found"
+            exit 1
+          fi
+
+          # Check high
+          if [ "${{ inputs.fail-on-high }}" == "true" ] && [ "$HIGH" -gt 0 ]; then
+            echo "FAIL: High severity vulnerabilities found"
+            exit 1
+          fi
+        fi
+
+        echo "DeepSweep validation complete"
