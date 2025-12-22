@@ -1,0 +1,22 @@
+# Project Coding Standards
+
+## Code Style
+- Use TypeScript for all new files
+- Follow ESLint configuration in .eslintrc
+- Maximum line length: 100 characters
+- Use 2 spaces for indentation
+
+## Testing Requirements
+- Write unit tests for all functions
+- Maintain >80% code coverage
+- Use Jest for testing framework
+
+## Documentation
+- Add JSDoc comments to all public functions
+- Update README when adding new features
+- Include examples in documentation
+
+## Git Workflow
+- Use conventional commits
+- Create feature branches from main
+- Squash commits before merging
