@@ -112,7 +112,7 @@ def validate(
     else:
         # Text format
         lines = [formatter.format_header(__version__)]
-        lines.append(formatter.format_scan_start(path, result.pattern_count))
+        lines.append(formatter.format_validation_start(path, result.pattern_count))
 
         # File results
         for file_result in result.files:

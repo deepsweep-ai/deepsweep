@@ -114,8 +114,8 @@ class OutputFormatter:
 {SLOGAN}
 """
 
-    def format_scan_start(self, path: str, pattern_count: int) -> str:
-        """Format scan initialization message."""
+    def format_validation_start(self, path: str, pattern_count: int) -> str:
+        """Format validation initialization message."""
         return f"""Validating {path}...
   {SYMBOL_INFO} Loaded {pattern_count} detection patterns
   {SYMBOL_INFO} Checking AI assistant configurations

@@ -10,7 +10,7 @@ Design Standards:
 from typing import Final
 
 # Version
-VERSION: Final[str] = "1.0.0"
+VERSION: Final[str] = "1.0.1"
 
 # ASCII Symbols - NO EMOJIS
 SYMBOL_PASS: Final[str] = "[PASS]"
@@ -29,7 +29,7 @@ DOCS_URL: Final[str] = "https://docs.deepsweep.ai"
 REMEDIATION_URL: Final[str] = "https://docs.deepsweep.ai/remediation"
 REPO_URL: Final[str] = "https://github.com/deepsweep-ai/deepsweep"
 
-# File patterns to scan
+# File patterns to validate
 SCANNABLE_FILES: Final[tuple[str, ...]] = (
     ".cursorrules",
     ".cursor/rules",

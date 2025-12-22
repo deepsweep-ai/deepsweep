@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deepsweep-ai"
-version = "1.0.0"
+version = "1.0.1"
 description = "Security Gateway for AI Coding Assistants. Validate Cursor, Copilot, Claude Code, Windsurf, and MCP configurations."
 readme = "README.md"
 license = {text = "MIT"}

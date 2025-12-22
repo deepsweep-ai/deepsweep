@@ -52,7 +52,7 @@ def validate_path(path: Path | str) -> ValidationResult:
                     file_results.append(result)
                     break
 
-        # Also scan subdirectories for hidden files
+        # Also check subdirectories for hidden files
         for item in path.rglob("*"):
             if item.is_file():
                 rel_path = str(item.relative_to(path))
