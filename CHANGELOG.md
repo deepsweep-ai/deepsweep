@@ -5,6 +5,45 @@ All notable changes to DeepSweep will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-22
+
+### Added
+
+- Anonymous telemetry with PostHog for product analytics
+  - Command usage tracking (validate, badge, patterns)
+  - Performance metrics (duration, exit codes)
+  - Platform and version distribution
+  - Error tracking with sanitized messages
+  - First-run detection for activation metrics
+- New telemetry CLI commands:
+  - `deepsweep telemetry status`: View telemetry configuration
+  - `deepsweep telemetry enable`: Enable telemetry collection
+  - `deepsweep telemetry disable`: Disable telemetry collection
+- Comprehensive PostHog dashboard setup guide (docs/POSTHOG_SETUP.md)
+  - Activation funnel configuration
+  - Retention tracking
+  - Key metrics and KPIs
+  - Competitor benchmarks (Snyk, Vercel CLI)
+- First-run notice with opt-out instructions
+- Privacy-first telemetry design:
+  - No PII collection
+  - No file paths or code content
+  - No finding details
+  - Anonymous UUID-based tracking
+- Comprehensive telemetry test suite
+
+### Changed
+
+- Version bump to 1.1.0 for telemetry release
+- Added PostHog dependency (posthog>=3.0.0)
+
+### Security
+
+- All telemetry data is anonymized
+- Telemetry is opt-out (industry standard)
+- Clear privacy policy in documentation
+- Telemetry errors never crash the application
+
 ## [1.0.1] - 2025-12-22
 
 ### Changed

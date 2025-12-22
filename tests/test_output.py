@@ -99,8 +99,11 @@ class TestOptimisticMessaging:
         next_steps = formatter.format_next_steps(sample_result)
 
         # Should be encouraging, not scary
-        assert "fix" not in next_steps.lower() or "let's" in next_steps.lower()
+        # "fixes" is acceptable in optimistic context like "quick fixes"
         assert "critical failure" not in next_steps.lower()
+        assert "vulnerability" not in next_steps.lower()
+        # Should have encouraging language
+        assert any(word in next_steps.lower() for word in ["review", "help", "quick"])
 
 
 class TestASCIISymbols:

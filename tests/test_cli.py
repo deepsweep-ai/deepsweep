@@ -62,7 +62,7 @@ class TestHelpCommand:
     def test_version(self, runner: CliRunner):
         result = runner.invoke(main, ["--version"])
 
-        assert "1.0.0" in result.output
+        assert "1.1.0" in result.output
 
 
 class TestBadgeCommand:

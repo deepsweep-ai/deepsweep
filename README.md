@@ -24,7 +24,7 @@ deepsweep validate .
 Expected output:
 
 ```
-DeepSweep v1.0.0
+DeepSweep v1.1.0
 Security Gateway for AI Coding Assistants
 Ship with vibes. Ship secure.
 
@@ -137,6 +137,65 @@ List all detection patterns:
 ```bash
 deepsweep patterns
 ```
+
+### telemetry
+
+Manage telemetry settings:
+
+```bash
+deepsweep telemetry status       # View current settings
+deepsweep telemetry disable      # Opt out of telemetry
+deepsweep telemetry enable       # Opt back in
+```
+
+## Telemetry & Privacy
+
+DeepSweep collects **anonymous usage data** to improve the tool. This helps us
+understand how DeepSweep is used and where to focus improvements.
+
+### What We Collect
+
+- Command usage (validate, badge, patterns)
+- Version and platform information
+- Performance metrics (duration, exit codes)
+- Finding counts (aggregated, no details)
+
+### What We DON'T Collect
+
+- Your code or file contents
+- File paths or names
+- Finding details or patterns matched
+- Personally identifiable information (PII)
+- Project or organization names
+
+### How to Opt Out
+
+Telemetry is **opt-out** (industry standard, like Snyk and Vercel CLI):
+
+```bash
+deepsweep telemetry disable
+```
+
+You can re-enable anytime:
+
+```bash
+deepsweep telemetry enable
+```
+
+Your telemetry preference is stored locally in `~/.deepsweep/config.json`.
+
+### Why Telemetry Matters
+
+Anonymous telemetry helps us:
+- Identify which commands need better performance
+- Understand platform distribution for testing priorities
+- Detect error patterns to improve reliability
+- Track activation metrics to improve onboarding
+
+We follow the same privacy-first approach as leading CLI tools. Your privacy
+is paramount.
+
+For more details, see [docs/POSTHOG_SETUP.md](docs/POSTHOG_SETUP.md).
 
 ## Scoring
 

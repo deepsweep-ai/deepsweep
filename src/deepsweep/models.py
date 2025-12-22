@@ -5,8 +5,6 @@ Uses Pydantic for validation and immutability.
 """
 
 from enum import Enum
-from pathlib import Path
-from typing import Annotated
 
 from pydantic import BaseModel, Field, computed_field
 

@@ -5,8 +5,7 @@ Loads and applies detection patterns to content.
 """
 
 import re
-from dataclasses import dataclass, field
-from typing import Callable
+from dataclasses import dataclass
 
 from deepsweep.models import Finding, Severity
 

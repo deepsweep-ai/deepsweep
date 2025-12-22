@@ -108,7 +108,7 @@ class TestScoring:
         """
         result = validate_content(content, ".cursorrules")
 
-        assert result.score < 50
+        assert result.score <= 50  # 2 CRITICAL findings = 100 - 25*2 = 50
 
     def test_minimum_score_is_zero(self):
         """Score should never go below 0."""

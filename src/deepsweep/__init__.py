@@ -9,7 +9,7 @@ from deepsweep.exceptions import DeepSweepError, PatternError, ValidationError
 from deepsweep.models import Finding, Severity, ValidationResult
 from deepsweep.validator import validate_content, validate_path
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 __all__ = [
     "__version__",
     "validate_path",

@@ -7,7 +7,7 @@ Validates paths and content against detection patterns.
 from pathlib import Path
 
 from deepsweep.constants import SCANNABLE_FILES
-from deepsweep.exceptions import FileAccessError, ValidationError
+from deepsweep.exceptions import ValidationError
 from deepsweep.models import FileResult, Finding, ValidationResult
 from deepsweep.patterns import Pattern, get_all_patterns, get_pattern_count
 
