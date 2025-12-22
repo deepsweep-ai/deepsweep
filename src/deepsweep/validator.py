@@ -56,11 +56,12 @@ def validate_path(path: Path | str) -> ValidationResult:
         for item in path.rglob("*"):
             if item.is_file():
                 rel_path = str(item.relative_to(path))
-                if any(rel_path.endswith(s) or s in rel_path for s in SCANNABLE_FILES):
-                    # Avoid duplicates
-                    if not any(fr.path == str(item) for fr in file_results):
-                        result = _validate_file(item, patterns)
-                        file_results.append(result)
+                # Avoid duplicates
+                if any(rel_path.endswith(s) or s in rel_path for s in SCANNABLE_FILES) and not any(
+                    fr.path == str(item) for fr in file_results
+                ):
+                    result = _validate_file(item, patterns)
+                    file_results.append(result)
 
     return ValidationResult(
         files=tuple(file_results),

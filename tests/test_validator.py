@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from deepsweep.models import Severity
 from deepsweep.validator import validate_content, validate_path
 

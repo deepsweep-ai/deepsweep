@@ -57,7 +57,7 @@ GRADE_SCALE: Final[dict[str, tuple[int, str]]] = {
     "F": (0, "Let's fix this together"),
 }
 
-# Colors (ANSI)
+
 class Colors:
     """ANSI color codes. Respects NO_COLOR."""
 
@@ -67,8 +67,8 @@ class Colors:
 
     # Severity colors
     CRITICAL: Final[str] = "\033[91m"  # Red
-    HIGH: Final[str] = "\033[91m"       # Red
-    MEDIUM: Final[str] = "\033[93m"     # Yellow
-    LOW: Final[str] = "\033[94m"        # Blue
-    INFO: Final[str] = "\033[94m"       # Blue
-    PASS: Final[str] = "\033[92m"       # Green
+    HIGH: Final[str] = "\033[91m"  # Red
+    MEDIUM: Final[str] = "\033[93m"  # Yellow
+    LOW: Final[str] = "\033[94m"  # Blue
+    INFO: Final[str] = "\033[94m"  # Blue
+    PASS: Final[str] = "\033[92m"  # Green

@@ -28,6 +28,7 @@ Design Standards:
 - Never crashes on error
 """
 
+import contextlib
 import hashlib
 import json
 import os
@@ -51,8 +52,7 @@ from deepsweep.constants import VERSION
 
 # Threat Intelligence endpoint (Essential tier)
 THREAT_INTEL_ENDPOINT: Final[str] = os.environ.get(
-    "DEEPSWEEP_INTEL_ENDPOINT",
-    "https://intel.deepsweep.ai/v1/signal"
+    "DEEPSWEEP_INTEL_ENDPOINT", "https://intel.deepsweep.ai/v1/signal"
 )
 
 # PostHog configuration (Optional tier)
@@ -69,7 +69,7 @@ REQUEST_TIMEOUT: Final[float] = 2.0
 # Default config
 DEFAULT_CONFIG: Final[dict[str, Any]] = {
     "telemetry_enabled": True,  # Optional tier (PostHog)
-    "offline_mode": False,      # Disables ALL telemetry
+    "offline_mode": False,  # Disables ALL telemetry
     "uuid": None,
     "first_run": True,
 }
@@ -78,6 +78,7 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
 # =============================================================================
 # THREAT INTELLIGENCE SIGNAL (ESSENTIAL TIER - THE FLYWHEEL)
 # =============================================================================
+
 
 @dataclass
 class ThreatSignal:
@@ -124,10 +125,6 @@ class ThreatSignal:
     session_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
 
 
-# =============================================================================
-# IDENTITY (ANONYMIZED)
-# =============================================================================
-
 _install_id_cache: str | None = None
 
 
@@ -165,6 +162,7 @@ def _get_install_id() -> str:
 # CI DETECTION
 # =============================================================================
 
+
 def _detect_ci() -> tuple[bool, str | None]:
     """Detect if running in CI environment."""
     ci_indicators = {
@@ -189,6 +187,7 @@ def _detect_ci() -> tuple[bool, str | None]:
 # =============================================================================
 # TELEMETRY CONFIG
 # =============================================================================
+
 
 class TelemetryConfig:
     """Manages telemetry configuration and preferences."""
@@ -270,10 +269,13 @@ class TelemetryConfig:
 # ASYNC SENDING
 # =============================================================================
 
+
 def _send_async(url: str, data: dict[str, Any], timeout: float = REQUEST_TIMEOUT) -> None:
     """Send data asynchronously (fire and forget)."""
+
     def _do_send() -> None:
-        try:
+        # Never fail, never block
+        with contextlib.suppress(Exception):
             request = Request(
                 url,
                 data=json.dumps(data).encode("utf-8"),
@@ -285,8 +287,6 @@ def _send_async(url: str, data: dict[str, Any], timeout: float = REQUEST_TIMEOUT
             )
             with urlopen(request, timeout=timeout):
                 pass  # Fire and forget
-        except Exception:
-            pass  # Never fail, never block
 
     thread = threading.Thread(target=_do_send, daemon=True)
     thread.start()
@@ -295,6 +295,7 @@ def _send_async(url: str, data: dict[str, Any], timeout: float = REQUEST_TIMEOUT
 # =============================================================================
 # THREAT INTELLIGENCE (ESSENTIAL TIER)
 # =============================================================================
+
 
 def send_threat_signal(signal: ThreatSignal, offline_mode: bool = False) -> None:
     """
@@ -311,16 +312,18 @@ def send_threat_signal(signal: ThreatSignal, offline_mode: bool = False) -> None
         return
 
     # Always send threat signals (essential tier)
-    _send_async(THREAT_INTEL_ENDPOINT, {
-        "event": "threat_signal",
-        "version": "1",
-        **asdict(signal),
-    })
+    _send_async(
+        THREAT_INTEL_ENDPOINT,
+        {
+            "event": "threat_signal",
+            "version": "1",
+            **asdict(signal),
+        },
+    )
 
 
 def create_threat_signal(
     findings_count: int = 0,
-    pattern_count: int = 0,
     score: int = 0,
     grade: str = "",
     duration_ms: int = 0,
@@ -353,6 +356,7 @@ def create_threat_signal(
 # =============================================================================
 # PRODUCT ANALYTICS (OPTIONAL TIER)
 # =============================================================================
+
 
 class TelemetryClient:
     """PostHog telemetry client (OPTIONAL TIER)."""
@@ -390,7 +394,6 @@ class TelemetryClient:
         if command == "validate" and not self.config.offline_mode:
             signal = create_threat_signal(
                 findings_count=findings_count or 0,
-                pattern_count=pattern_count or 0,
                 score=score or 0,
                 grade=grade or "",
                 duration_ms=duration_ms,
@@ -425,7 +428,7 @@ class TelemetryClient:
 
         properties.update(kwargs)
 
-        try:
+        with contextlib.suppress(Exception):
             posthog.capture(
                 distinct_id=self.config.uuid,
                 event=f"deepsweep_{command}",
@@ -434,8 +437,6 @@ class TelemetryClient:
 
             if self.config.first_run:
                 self.config.mark_not_first_run()
-        except Exception:
-            pass
 
     def track_error(
         self,
@@ -458,21 +459,19 @@ class TelemetryClient:
             sanitized = error_message.replace(str(Path.home()), "~")
             properties["error_message"] = sanitized[:200]
 
-        try:
+        with contextlib.suppress(Exception):
             posthog.capture(
                 distinct_id=self.config.uuid,
                 event="deepsweep_error",
                 properties=properties,
             )
-        except Exception:
-            pass
 
     def identify(self) -> None:
         """Identify user with PostHog (OPTIONAL TIER)."""
         if not self.config.enabled or self.config.offline_mode:
             return
 
-        try:
+        with contextlib.suppress(Exception):
             posthog.identify(
                 distinct_id=self.config.uuid,
                 properties={
@@ -482,15 +481,11 @@ class TelemetryClient:
                     "python_version": platform.python_version(),
                 },
             )
-        except Exception:
-            pass
 
     def shutdown(self) -> None:
         """Shutdown telemetry client and flush events."""
-        try:
+        with contextlib.suppress(Exception):
             posthog.shutdown()
-        except Exception:
-            pass
 
 
 # Global telemetry client

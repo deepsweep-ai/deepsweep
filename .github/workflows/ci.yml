@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -33,12 +33,49 @@ jobs:
         run: mypy src/deepsweep
 
       - name: Run tests
-        run: pytest --cov=src/deepsweep --cov-report=xml
+        run: pytest --cov=src/deepsweep --cov-report=xml --cov-report=term
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.12'
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.xml
+          fail_ci_if_error: false
+
+  design-standards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Verify design standards
+        run: bash verify-design-standards.sh
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run integration tests
+        run: bash test-integration.sh
+        env:
+          DEEPSWEEP_OFFLINE: "1"
 
   validate:
     runs-on: ubuntu-latest
@@ -48,10 +85,27 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install DeepSweep
         run: pip install -e .
 
       - name: Self-validate
-        run: deepsweep validate .
+        run: deepsweep validate . --format text
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Bandit security scan
+        run: |
+          pip install bandit[toml]
+          bandit -r src/deepsweep -ll
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD

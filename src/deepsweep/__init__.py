@@ -11,13 +11,13 @@ from deepsweep.validator import validate_content, validate_path
 
 __version__ = "1.2.0"
 __all__ = [
-    "__version__",
-    "validate_path",
-    "validate_content",
-    "ValidationResult",
-    "Finding",
-    "Severity",
     "DeepSweepError",
-    "ValidationError",
+    "Finding",
     "PatternError",
+    "Severity",
+    "ValidationError",
+    "ValidationResult",
+    "__version__",
+    "validate_content",
+    "validate_path",
 ]

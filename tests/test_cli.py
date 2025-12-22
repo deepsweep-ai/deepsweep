@@ -41,11 +41,9 @@ class TestValidateCommand:
         assert '"findings"' in result.output
 
     def test_fail_on_critical(self, runner: CliRunner, malicious_cursorrules: Path):
-        result = runner.invoke(main, [
-            "validate",
-            str(malicious_cursorrules.parent),
-            "--fail-on", "critical"
-        ])
+        result = runner.invoke(
+            main, ["validate", str(malicious_cursorrules.parent), "--fail-on", "critical"]
+        )
 
         # CURSOR-RULES-001 is CRITICAL, should fail
         assert result.exit_code == 1

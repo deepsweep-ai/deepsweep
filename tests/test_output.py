@@ -1,11 +1,10 @@
 """Tests for CLI output formatting."""
 
-import os
 import re
 
 import pytest
 
-from deepsweep.models import Finding, FileResult, Severity, ValidationResult
+from deepsweep.models import FileResult, Finding, Severity, ValidationResult
 from deepsweep.output import OutputConfig, OutputFormatter, supports_color
 
 
@@ -43,11 +42,11 @@ class TestNoEmojis:
 
     EMOJI_PATTERN = re.compile(
         "["
-        "\U0001F600-\U0001F64F"
-        "\U0001F300-\U0001F5FF"
-        "\U0001F680-\U0001F6FF"
-        "\U0001F1E0-\U0001F1FF"
-        "\U00002702-\U000027B0"
+        "\U0001f600-\U0001f64f"
+        "\U0001f300-\U0001f5ff"
+        "\U0001f680-\U0001f6ff"
+        "\U0001f1e0-\U0001f1ff"
+        "\U00002702-\U000027b0"
         "]+"
     )
 
@@ -75,7 +74,9 @@ class TestNoEmojis:
 class TestOptimisticMessaging:
     """Verify optimistic (Wiz-style) messaging."""
 
-    def test_uses_items_to_review(self, formatter: OutputFormatter, sample_result: ValidationResult):
+    def test_uses_items_to_review(
+        self, formatter: OutputFormatter, sample_result: ValidationResult
+    ):
         summary = formatter.format_summary(sample_result)
 
         assert "vulnerabilities" not in summary.lower()
@@ -95,7 +96,9 @@ class TestOptimisticMessaging:
         assert "How to address" in output
         assert "Fix this vulnerability" not in output
 
-    def test_encouraging_next_steps(self, formatter: OutputFormatter, sample_result: ValidationResult):
+    def test_encouraging_next_steps(
+        self, formatter: OutputFormatter, sample_result: ValidationResult
+    ):
         next_steps = formatter.format_next_steps(sample_result)
 
         # Should be encouraging, not scary

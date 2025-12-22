@@ -8,16 +8,12 @@ Design Standards:
 """
 
 import json
-import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from deepsweep.telemetry import (
-    CONFIG_DIR,
-    CONFIG_FILE,
-    DEFAULT_CONFIG,
     TelemetryClient,
     TelemetryConfig,
 )
@@ -236,9 +232,7 @@ class TestTelemetryClient:
         mock_posthog.shutdown.assert_called_once()
 
     @patch("deepsweep.telemetry.posthog")
-    def test_marks_first_run_complete(
-        self, mock_posthog: MagicMock, temp_config_dir: Path
-    ) -> None:
+    def test_marks_first_run_complete(self, mock_posthog: MagicMock, temp_config_dir: Path) -> None:
         """Test first run is marked complete after tracking."""
         client = TelemetryClient()
         assert client.config.first_run is True
@@ -248,9 +242,7 @@ class TestTelemetryClient:
         assert client.config.first_run is False
 
     @patch("deepsweep.telemetry.posthog")
-    def test_sanitizes_error_messages(
-        self, mock_posthog: MagicMock, temp_config_dir: Path
-    ) -> None:
+    def test_sanitizes_error_messages(self, mock_posthog: MagicMock, temp_config_dir: Path) -> None:
         """Test error messages are sanitized to remove PII."""
         client = TelemetryClient()
 
@@ -337,9 +329,7 @@ class TestTelemetryPrivacy:
         assert "pattern" not in properties
 
     @patch("deepsweep.telemetry.posthog")
-    def test_only_aggregated_metrics(
-        self, mock_posthog: MagicMock, temp_config_dir: Path
-    ) -> None:
+    def test_only_aggregated_metrics(self, mock_posthog: MagicMock, temp_config_dir: Path) -> None:
         """Test only aggregated metrics are collected."""
         client = TelemetryClient()
 

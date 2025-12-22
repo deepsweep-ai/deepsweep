@@ -54,7 +54,9 @@ class Pattern:
             severity=self.severity,
             file_path=file_path,
             line=line,
-            message=f"{self.description}: {matched_text[:50]}..." if len(matched_text) > 50 else f"{self.description}: {matched_text}",
+            message=f"{self.description}: {matched_text[:50]}..."
+            if len(matched_text) > 50
+            else f"{self.description}: {matched_text}",
             pattern_id=self.id,
             cve=self.cve,
             owasp=self.owasp,
@@ -114,7 +116,6 @@ PATTERNS: tuple[Pattern, ...] = (
         remediation="Remove invisible Unicode characters (use hex editor to inspect)",
         owasp="ASI01",
     ),
-
     # Copilot patterns
     Pattern(
         id="COPILOT-INJ-001",
@@ -149,7 +150,6 @@ PATTERNS: tuple[Pattern, ...] = (
         cve="CVE-2025-43102",
         owasp="ASI01",
     ),
-
     # Claude patterns
     Pattern(
         id="CLAUDE-WS-001",
@@ -183,7 +183,6 @@ PATTERNS: tuple[Pattern, ...] = (
         remediation="Specify explicit allowed origins instead of wildcard",
         owasp="ASI07",
     ),
-
     # MCP patterns
     Pattern(
         id="MCP-POISON-001",
@@ -228,7 +227,6 @@ PATTERNS: tuple[Pattern, ...] = (
         remediation="Move sensitive values to secure credential storage",
         owasp="ASI09",
     ),
-
     # Windsurf patterns
     Pattern(
         id="WINDSURF-EXFIL-001",

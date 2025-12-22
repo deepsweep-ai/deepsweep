@@ -16,19 +16,23 @@ class DeepSweepError(Exception):
 
 class ValidationError(DeepSweepError):
     """Raised when validation fails unexpectedly."""
+
     pass
 
 
 class PatternError(DeepSweepError):
     """Raised when a pattern is invalid or fails to compile."""
+
     pass
 
 
 class ConfigurationError(DeepSweepError):
     """Raised when configuration is invalid."""
+
     pass
 
 
 class FileAccessError(DeepSweepError):
     """Raised when a file cannot be read."""
+
     pass

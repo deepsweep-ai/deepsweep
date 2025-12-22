@@ -8,7 +8,7 @@ version = "1.2.0"
 description = "Security Gateway for AI Coding Assistants. Validate Cursor, Copilot, Claude Code, Windsurf, and MCP configurations."
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
     {name = "DeepSweep", email = "security@deepsweep.ai"}
 ]
@@ -34,6 +34,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -82,8 +83,11 @@ include = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/deepsweep"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"src/deepsweep/py.typed" = "deepsweep/py.typed"
+
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"
 line-length = 100
 src = ["src", "tests"]
 
@@ -117,8 +121,9 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 strict = true
+ignore_missing_imports = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -131,6 +136,18 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "deepsweep.models"
+warn_return_any = false
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = "deepsweep.cli"
+disallow_untyped_defs = false  # Click decorators
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG002"]  # Unused method arguments (pytest fixtures)
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

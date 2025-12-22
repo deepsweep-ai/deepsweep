@@ -47,10 +47,7 @@ def supports_color() -> bool:
         return False
 
     # Dumb terminals don't support color
-    if os.environ.get("TERM") == "dumb":
-        return False
-
-    return True
+    return os.environ.get("TERM") != "dumb"
 
 
 @dataclass
@@ -136,7 +133,9 @@ class OutputFormatter:
 
         Note: We say "How to address" not "Fix this vulnerability"
         """
-        symbol = SYMBOL_FAIL if finding.severity in (Severity.CRITICAL, Severity.HIGH) else SYMBOL_WARN
+        symbol = (
+            SYMBOL_FAIL if finding.severity in (Severity.CRITICAL, Severity.HIGH) else SYMBOL_WARN
+        )
 
         header = f"{symbol} {finding.file_path}:{finding.line}"
         header = self._colorize(header, finding.severity)

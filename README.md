@@ -1,18 +1,33 @@
+<div align="center">
+
 # DeepSweep
 
-**Security Gateway for AI Coding Assistants**
+**Security gateway for AI code assistants**
 
-> "Vibe coding" is Collins' Word of the Year 2025. 25% of YC W25 startups
-> have 95% AI-generated codebases. DeepSweep ensures your AI assistant
-> setup is secure before you ship.
+Validate Cursor, Copilot, Claude Code, and Windsurf configurations
+before they execute in your environment.
 
-Validate configurations for Cursor, Copilot, Claude Code, Windsurf, and
-MCP servers. Catch prompt injection, supply chain attacks, and misconfigurations
-before they become problems.
-
-[![PyPI version](https://img.shields.io/pypi/v/deepsweep-ai)](https://pypi.org/project/deepsweep-ai/)
+[![CI](https://github.com/deepsweep-ai/deepsweep/actions/workflows/ci.yml/badge.svg)](https://github.com/deepsweep-ai/deepsweep/actions)
+[![PyPI](https://img.shields.io/pypi/v/deepsweep-ai.svg)](https://pypi.org/project/deepsweep-ai/)
 [![Python](https://img.shields.io/pypi/pyversions/deepsweep-ai)](https://pypi.org/project/deepsweep-ai/)
-[![License](https://img.shields.io/github/license/deepsweep-ai/deepsweep)](https://github.com/deepsweep-ai/deepsweep/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+[Quick Start](#quick-start) | [Documentation](https://docs.deepsweep.ai) | [Contributing](CONTRIBUTING.md)
+
+</div>
+
+---
+
+## Why DeepSweep
+
+AI coding assistants execute instructions from configuration files. Those files
+can contain prompt injection, MCP poisoning, and supply chain attacks. DeepSweep
+validates configurations before execution.
+
+**December 2025**: 30+ CVEs disclosed across every major AI IDE (IDEsaster).
+DeepSweep detects all of them.
+
+---
 
 ## Quick Start
 
@@ -21,7 +36,9 @@ pip install deepsweep-ai
 deepsweep validate .
 ```
 
-Expected output:
+---
+
+## Output
 
 ```
 DeepSweep v1.2.0
@@ -29,133 +46,124 @@ Security Gateway for AI Coding Assistants
 Ship with vibes. Ship secure.
 
 Validating .
-  [INFO] Loaded 20 detection patterns
+  [INFO] Loaded 39 detection patterns
   [INFO] Checking AI assistant configurations
 
   [PASS] .github/copilot-instructions.md
   [FAIL] .cursorrules:15
-    Prompt injection detected: ignore all previous...
+    Prompt injection detected: instruction override attempt
     > Pattern: CURSOR-RULES-001
-    > CVE: CVE-2025-43570
+    > CVE: CVE-2025-43570 (CVSS 9.1)
     > How to address: Remove instruction override patterns
 
 ---
-Score: 75/100 (C - Review recommended)
+Score: 72/100 (C - Review recommended)
 A few items to review
 
-1 item to review
+2 items to review
 ---
 ```
 
-## Why DeepSweep?
+---
 
-Traditional security tools scan code *after* generation. But attacks like
-prompt injection happen at *configuration time*—before your AI assistant
-writes a single line.
+## Installation
 
-DeepSweep validates your AI assistant setup before execution:
+```bash
+# pip (recommended)
+pip install deepsweep-ai
 
-- **20+ detection patterns** covering known CVEs
-- **OWASP Agentic AI** alignment
-- **Sub-50ms validation** (doesn't slow you down)
-- **100% local** (your code never leaves your machine)
+# pipx (isolated)
+pipx install deepsweep-ai
 
-## Supported Assistants
+# From source
+git clone https://github.com/deepsweep-ai/deepsweep.git
+cd deepsweep && pip install -e .
+```
 
-| Assistant | Config Files | Status |
-|-----------|--------------|--------|
-| Cursor | `.cursorrules` | Full coverage |
-| GitHub Copilot | `copilot-instructions.md` | Full coverage |
-| Claude Code | `claude_desktop_config.json` | Full coverage |
-| Windsurf | `.windsurfrules` | Full coverage |
-| MCP Servers | `mcp.json` | Full coverage |
+---
 
-## CI/CD Integration
+## Usage
 
-### GitHub Actions
+```bash
+# Validate current directory
+deepsweep validate .
+
+# Validate specific path
+deepsweep validate ~/projects/my-repo
+
+# Output formats
+deepsweep validate . --format text    # Human readable (default)
+deepsweep validate . --format json    # Machine readable
+deepsweep validate . --format sarif   # GitHub Security integration
+
+# List patterns
+deepsweep patterns
+
+# Generate badge
+deepsweep badge --output badge.svg
+
+# Telemetry management
+deepsweep telemetry status
+deepsweep telemetry disable
+```
+
+---
+
+## GitHub Action
 
 ```yaml
-name: Security
-
+name: DeepSweep Security
 on: [push, pull_request]
 
 jobs:
-  validate:
+  security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install DeepSweep
         run: pip install deepsweep-ai
-
-      - name: Validate configurations
+      - name: Validate
         run: deepsweep validate . --fail-on high
 ```
 
-### Pre-commit Hook
+---
 
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: deepsweep
-        name: DeepSweep
-        entry: deepsweep validate .
-        language: system
-        pass_filenames: false
-```
+## Detection Coverage
 
-## Commands
+### Prompt Injection
+- Hidden instruction patterns
+- System prompt override attempts
+- Base64-encoded payloads
+- Unicode obfuscation
 
-### validate
+### MCP Security
+- Excessive permissions (--allow-all)
+- Untrusted server sources
+- Missing sandboxing
+- Dangerous tool configurations
 
-Validate AI assistant configurations:
+### IDEsaster CVEs (December 2025)
 
-```bash
-deepsweep validate .                    # Current directory
-deepsweep validate ./project            # Specific path
-deepsweep validate . --format json      # JSON output
-deepsweep validate . --format sarif     # SARIF for GitHub Security
-deepsweep validate . --fail-on critical # Only fail on critical
-```
+| CVE | CVSS | Tool | Detection |
+|-----|------|------|-----------|
+| CVE-2025-43570 | 9.1 | Cursor | CURSOR-RULES-001 |
+| CVE-2025-52882 | 9.3 | Claude Code | MCP-POISON-001 |
+| CVE-2025-43102 | 8.5 | Copilot | COPILOT-001 |
+| CVE-2025-55284 | 9.2 | Windsurf | WINDSURF-EXFIL-001 |
+| CVE-2025-53109 | 9.0 | MCP | MCP-POISON-003 |
 
-### badge
+---
 
-Generate a security badge for your README:
+## Privacy & Telemetry
 
-```bash
-deepsweep badge                         # Creates badge.svg
-deepsweep badge --format markdown       # Markdown embed code
-deepsweep badge --format json           # Shields.io endpoint
-```
-
-### patterns
-
-List all detection patterns:
-
-```bash
-deepsweep patterns
-```
-
-### telemetry
-
-Manage telemetry settings:
-
-```bash
-deepsweep telemetry status       # View current settings
-deepsweep telemetry disable      # Opt out of telemetry
-deepsweep telemetry enable       # Opt back in
-```
-
-## Telemetry & Privacy
-
-DeepSweep uses a **two-tier telemetry system** following Snyk's model.
+DeepSweep uses transparent two-tier telemetry:
 
 ### TIER 1: Essential (Always Active)
 
-**Threat Intelligence** - Powers the community security flywheel:
-
+**Threat Intelligence** - Powers community security:
 - Pattern effectiveness tracking
 - Attack trend analysis
 - Zero-day detection
@@ -176,11 +184,9 @@ gets for everyone.
 ### TIER 2: Optional (You Control)
 
 **Product Analytics** - PostHog for improvements:
-
 - Activation and retention metrics
 - Feature usage patterns
 - Performance data
-- Funnel optimization
 
 **Disable optional analytics:**
 
@@ -193,8 +199,6 @@ deepsweep telemetry disable
 ```bash
 deepsweep telemetry enable
 ```
-
-Config stored in `~/.deepsweep/config.json`.
 
 ### What We NEVER Collect
 
@@ -212,39 +216,32 @@ Config stored in `~/.deepsweep/config.json`.
 
 We follow the same privacy-first approach as Snyk, Vercel CLI, and GitHub CLI.
 
-For more details, see [docs/POSTHOG_SETUP.md](docs/POSTHOG_SETUP.md).
-
-## Scoring
-
-DeepSweep calculates a security score from 0-100:
-
-| Grade | Score | Meaning |
-|-------|-------|---------|
-| A | 90-100 | Ship ready |
-| B | 80-89 | Looking good |
-| C | 70-79 | Review recommended |
-| D | 60-69 | Attention needed |
-| F | 0-59 | Let's fix this together |
-
-Scoring formula:
-- Start at 100
-- Critical finding: -25
-- High finding: -15
-- Medium finding: -5
-- Low finding: -1
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Security
-
-Found a vulnerability? See [SECURITY.md](SECURITY.md) for reporting.
-
-## License
-
-MIT - see [LICENSE](LICENSE)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ---
 
-Ship with vibes. Ship secure.
+## Security
+
+Report vulnerabilities: security@deepsweep.ai
+
+See [SECURITY.md](SECURITY.md) for disclosure policy.
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+**Ship with vibes. Ship secure.**
+
+[Website](https://deepsweep.ai) | [Docs](https://docs.deepsweep.ai) | [GitHub](https://github.com/deepsweep-ai/deepsweep)
+
+</div>

@@ -85,13 +85,17 @@ def main(ctx: click.Context) -> None:
 @main.command()
 @click.argument("path", default=".", type=click.Path(exists=True))
 @click.option(
-    "--format", "-f", "output_format",
+    "--format",
+    "-f",
+    "output_format",
     type=click.Choice(["text", "json", "sarif"]),
     default="text",
     help="Output format",
 )
 @click.option(
-    "--output", "-o", "output_file",
+    "--output",
+    "-o",
+    "output_file",
     type=click.Path(),
     default=None,
     help="Output file (default: stdout)",
@@ -108,7 +112,8 @@ def main(ctx: click.Context) -> None:
     help="Exit non-zero if findings at or above this severity",
 )
 @click.option(
-    "--verbose", "-v",
+    "--verbose",
+    "-v",
     is_flag=True,
     help="Show verbose output",
 )
@@ -165,10 +170,11 @@ def validate(
         # File results
         for file_result in result.files:
             if file_result.skipped:
-                lines.append(formatter.format_file_skip(
-                    file_result.path,
-                    file_result.skip_reason or "unknown"
-                ))
+                lines.append(
+                    formatter.format_file_skip(
+                        file_result.path, file_result.skip_reason or "unknown"
+                    )
+                )
             elif file_result.has_findings:
                 for finding in file_result.findings:
                     lines.append(formatter.format_finding(finding))
@@ -213,12 +219,15 @@ def validate(
 
 @main.command()
 @click.option(
-    "--output", "-o",
+    "--output",
+    "-o",
     default="badge.svg",
     help="Output file path",
 )
 @click.option(
-    "--format", "-f", "output_format",
+    "--format",
+    "-f",
+    "output_format",
     type=click.Choice(["svg", "json", "markdown"]),
     default="svg",
     help="Output format",
@@ -237,7 +246,7 @@ def badge(output: str, output_format: str) -> None:
     telemetry = get_telemetry_client()
 
     try:
-        result = validate_path(Path("."))
+        result = validate_path(Path())
         score = result.score
         grade = result.grade_letter
 
@@ -251,18 +260,23 @@ def badge(output: str, output_format: str) -> None:
 
         if output_format == "json":
             import json
-            content = json.dumps({
-                "schemaVersion": 1,
-                "label": "DeepSweep",
-                "message": f"{score}/100 ({grade})",
-                "color": color,
-            }, indent=2)
+
+            content = json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "label": "DeepSweep",
+                    "message": f"{score}/100 ({grade})",
+                    "color": color,
+                },
+                indent=2,
+            )
         elif output_format == "markdown":
             url = f"https://img.shields.io/badge/DeepSweep-{score}%2F100%20({grade})-{color}"
             content = f"[![DeepSweep]({url})](https://deepsweep.ai)"
         else:
             # SVG - fetch from shields.io
             import urllib.request
+
             url = f"https://img.shields.io/badge/DeepSweep-{score}%2F100%20({grade})-{color}"
             try:
                 with urllib.request.urlopen(url, timeout=10) as response:
