@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "DeepSweep",
+          "version": "1.0.0rc1",
+          "informationUri": "https://deepsweep.ai",
+          "rules": [
+            {
+              "id": "DS-PI-001",
+              "name": "Instruction Override Pattern",
+              "shortDescription": {
+                "text": "Instruction Override Pattern"
+              },
+              "fullDescription": {
+                "text": "Detected attempt to override system instructions. This is the primary prompt injection technique."
+              },
+              "help": {
+                "text": "Remove or sanitize instruction override patterns. Use allowlisted prompts only."
+              },
+              "properties": {
+                "security-severity": "9.0"
+              }
+            },
+            {
+              "id": "DS-PI-003",
+              "name": "Auto-Accept Mode Activation",
+              "shortDescription": {
+                "text": "Auto-Accept Mode Activation"
+              },
+              "fullDescription": {
+                "text": "Attempt to enable auto-accept/YOLO mode detected. This bypasses user confirmation for dangerous actions."
+              },
+              "help": {
+                "text": "Never enable auto-accept modes. Always require user confirmation for shell commands."
+              },
+              "properties": {
+                "security-severity": "9.0"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "DS-PI-001",
+          "level": "error",
+          "message": {
+            "text": "Instruction Override Pattern: Detected attempt to override system instructions. This is the primary prompt injection technique."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/Users/bradmcevilly/Development/com/deepsweep.ai/new/deepsweep/.cursorrules"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DS-PI-003",
+          "level": "error",
+          "message": {
+            "text": "Auto-Accept Mode Activation: Attempt to enable auto-accept/YOLO mode detected. This bypasses user confirmation for dangerous actions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/Users/bradmcevilly/Development/com/deepsweep.ai/new/deepsweep/.cursorrules"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

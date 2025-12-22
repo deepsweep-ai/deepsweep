@@ -24,6 +24,7 @@ from deepsweep_ai.config import Config, Mode, Tier
 from deepsweep_ai.scanner import Scanner, ScanResult, Severity, Finding
 from deepsweep_ai.api_client import APIClient
 from deepsweep_ai.pricing import check_tier_limits, get_upgrade_message
+<<<<<<< HEAD
 from deepsweep_ai.telemetry import (
     track_scan_completed,
     track_cli_invoked,
@@ -41,6 +42,9 @@ from deepsweep_ai.telemetry import (
 )
 import traceback
 import atexit
+=======
+from deepsweep_ai.telemetry import track_scan_completed, track_cli_invoked
+>>>>>>> origin
 
 
 # ============================================================================
@@ -235,6 +239,7 @@ def format_text_result(result: ScanResult, config: Config) -> str:
 # CLI COMMANDS
 # ============================================================================
 
+<<<<<<< HEAD
 # Global exit code for session tracking
 _exit_code = 0
 
@@ -244,6 +249,8 @@ def _on_exit():
     track_session_end(__version__, _exit_code)
 
 
+=======
+>>>>>>> origin
 @click.group(invoke_without_command=True)
 @click.option("--version", is_flag=True, help="Show version")
 @click.pass_context
@@ -253,6 +260,7 @@ def main(ctx, version):
     Intercept and validate AI assistant configurations before execution.
     Aligned with OWASP Top 10 for Agentic AI Applications.
     """
+<<<<<<< HEAD
     # Initialize telemetry (tracks install on first run)
     initialize_telemetry(__version__)
 
@@ -261,11 +269,17 @@ def main(ctx, version):
 
     if version:
         track_cli_invoked(__version__, "version")
+=======
+    if version:
+>>>>>>> origin
         print(f"DeepSweep v{__version__}")
         return
 
     if ctx.invoked_subcommand is None:
+<<<<<<< HEAD
         track_cli_invoked(__version__, "help")
+=======
+>>>>>>> origin
         print(header(__version__))
         print()
         print("Run 'deepsweep scan' to validate current directory")
@@ -296,18 +310,24 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
         deepsweep scan --format json      # JSON output
         deepsweep scan --format sarif -o results.sarif  # SARIF for GitHub
     """
+<<<<<<< HEAD
     global _exit_code
 
     # Track command invocation
     track_cli_invoked(__version__, "scan")
 
+=======
+>>>>>>> origin
     # Load config
     config = Config.load()
     config.mode = Mode.ENFORCE if enforce else Mode.OBSERVE
     config.output_format = output_format
     config.verbose = verbose
     config.quiet = quiet
+<<<<<<< HEAD
     mode_str = "enforce" if enforce else "observe"
+=======
+>>>>>>> origin
 
     if api_key:
         config.api_key = api_key
@@ -317,7 +337,10 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
     if not tier_ok:
         print(f"Warning: {tier_msg}")
         print(get_upgrade_message())
+<<<<<<< HEAD
         _exit_code = 1
+=======
+>>>>>>> origin
         sys.exit(1)
 
     # Print header for text mode
@@ -328,6 +351,7 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
         print(f"Validating {path} in {mode_label} mode")
         print()
 
+<<<<<<< HEAD
     # Track scan started (for funnel analysis)
     track_scan_started(__version__, mode_str)
 
@@ -362,6 +386,11 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
             print(f"Scan error: {e}")
         _exit_code = 1
         sys.exit(1)
+=======
+    # Run scan
+    scanner = Scanner(config)
+    result = scanner.scan(path)
+>>>>>>> origin
 
     # Output results
     if output_format == "json":
@@ -388,6 +417,7 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
             if verbose:
                 print(f"API report failed: {e}")
 
+<<<<<<< HEAD
     # Calculate exit code
     exit_code = 1 if (enforce and not result.safe) else 0
     _exit_code = exit_code
@@ -400,17 +430,33 @@ def scan(path: str, enforce: bool, output_format: str, output: Optional[str],
         "low": sum(1 for f in result.findings if f.severity == Severity.LOW),
     }
 
+=======
+    # Track telemetry (async, non-blocking)
+    exit_code = 1 if (enforce and not result.safe) else 0
+>>>>>>> origin
     track_scan_completed(
         cli_version=__version__,
         scan_duration_ms=result.duration_ms,
         files_scanned=result.files_scanned,
         patterns_matched=[f.id for f in result.findings],
+<<<<<<< HEAD
         severity_counts=severity_counts,
         score=result.score,
         output_format=output_format,
         exit_code=exit_code,
         mode=mode_str,
         success=scan_success,
+=======
+        severity_counts={
+            "critical": sum(1 for f in result.findings if f.severity == Severity.CRITICAL),
+            "high": sum(1 for f in result.findings if f.severity == Severity.HIGH),
+            "medium": sum(1 for f in result.findings if f.severity == Severity.MEDIUM),
+            "low": sum(1 for f in result.findings if f.severity == Severity.LOW),
+        },
+        score=result.score,
+        output_format=output_format,
+        exit_code=exit_code,
+>>>>>>> origin
     )
 
     # Exit code based on mode and findings
@@ -425,14 +471,18 @@ def config(ctx):
         # Show config by default if no subcommand
         from deepsweep_ai.telemetry import _get_config as get_telemetry_config
 
+<<<<<<< HEAD
         track_cli_invoked(__version__, "config")
 
+=======
+>>>>>>> origin
         config_path = Path.home() / ".config" / "deepsweep" / "config.yaml"
         cfg = Config.load()
         tel_cfg = get_telemetry_config()
 
         api_display = f"{'*' * 8}{cfg.api_key[-4:]}" if cfg.api_key else "Not set"
         telemetry_status = "enabled" if tel_cfg.get("telemetry", True) else "disabled"
+<<<<<<< HEAD
         error_reporting_status = "enabled" if tel_cfg.get("error_reporting", False) else "disabled"
 
         print("DeepSweep Configuration")
@@ -443,6 +493,16 @@ def config(ctx):
         print(f"Telemetry:       {telemetry_status}")
         print(f"Error reports:   {error_reporting_status}")
         print(f"Config:          {config_path}")
+=======
+
+        print("DeepSweep Configuration")
+        print(divider(40))
+        print(f"API Key:    {api_display}")
+        print(f"Mode:       {cfg.mode.value}")
+        print(f"Tier:       {cfg.tier.value}")
+        print(f"Telemetry:  {telemetry_status}")
+        print(f"Config:     {config_path}")
+>>>>>>> origin
 
 
 @config.command("set")
@@ -453,20 +513,27 @@ def config_set(key: str, value: str):
 
     Examples:
         deepsweep config set telemetry false
+<<<<<<< HEAD
         deepsweep config set error_reporting true
+=======
+>>>>>>> origin
         deepsweep config set mode enforce
         deepsweep config set api_key YOUR_KEY
     """
     from deepsweep_ai.telemetry import set_telemetry_enabled, _get_config, _save_config
 
+<<<<<<< HEAD
     track_cli_invoked(__version__, "config_set")
     track_feature_used(__version__, "config_set", {"key": key})
 
+=======
+>>>>>>> origin
     if key == "telemetry":
         enabled = value.lower() in ("true", "1", "yes", "on")
         set_telemetry_enabled(enabled)
         status = "enabled" if enabled else "disabled"
         click.echo(f"Telemetry {status}")
+<<<<<<< HEAD
     elif key == "error_reporting":
         # Opt-in stack trace collection
         enabled = value.lower() in ("true", "1", "yes", "on")
@@ -475,6 +542,8 @@ def config_set(key: str, value: str):
         click.echo(f"Error reporting (stack traces) {status}")
         if enabled:
             click.echo("Stack traces will now be included in error telemetry.")
+=======
+>>>>>>> origin
     elif key == "mode":
         config_path = Path.home() / ".config" / "deepsweep" / "config.yaml"
         cfg = Config.load()
@@ -505,18 +574,28 @@ def config_get(key: Optional[str] = None):
     """
     from deepsweep_ai.telemetry import _get_config
 
+<<<<<<< HEAD
     track_cli_invoked(__version__, "config_get")
 
+=======
+>>>>>>> origin
     tel_cfg = _get_config()
     cfg = Config.load()
 
     # Merge configs for display
     all_config = {
         "telemetry": tel_cfg.get("telemetry", True),
+<<<<<<< HEAD
         "error_reporting": tel_cfg.get("error_reporting", False),
         "mode": cfg.mode.value,
         "tier": cfg.tier.value,
         "api_key": f"{'*' * 8}{cfg.api_key[-4:]}" if cfg.api_key else "not set",
+=======
+        "mode": cfg.mode.value,
+        "tier": cfg.tier.value,
+        "api_key": f"{'*' * 8}{cfg.api_key[-4:]}" if cfg.api_key else "not set",
+        **{k: v for k, v in tel_cfg.items() if k not in ("telemetry", "installation_id")},
+>>>>>>> origin
     }
 
     if key:
@@ -527,6 +606,7 @@ def config_get(key: Optional[str] = None):
             click.echo(f"{k} = {v}")
 
 
+<<<<<<< HEAD
 @config.command("stats")
 def config_stats():
     """Show telemetry statistics for this installation.
@@ -562,6 +642,11 @@ def auth():
     track_cli_invoked(__version__, "auth")
     track_auth_flow(__version__, "started")
 
+=======
+@main.command()
+def auth():
+    """Authenticate with DeepSweep for Pro features."""
+>>>>>>> origin
     print("DeepSweep Authentication")
     print(divider(40))
     print()
@@ -578,7 +663,10 @@ def auth():
 @main.command()
 def version():
     """Show version information."""
+<<<<<<< HEAD
     track_cli_invoked(__version__, "version_cmd")
+=======
+>>>>>>> origin
     print(f"DeepSweep v{__version__}")
     print("The #1 Security Gateway for Agentic AI Code Assistants")
     print("https://deepsweep.ai")
