@@ -63,8 +63,14 @@ class Pattern:
 
 
 # Core detection patterns
+# IDEsaster CVE Coverage (December 2025 Coordinated Disclosure):
+#   CVE-2025-43570 (CVSS 9.1) - Cursor Rules File Backdoor
+#   CVE-2025-52882 (CVSS 9.3) - Claude Code WebSocket Auth Bypass
+#   CVE-2025-43102 (CVSS 8.5) - GitHub Copilot Instructions Injection
+#   CVE-2025-55284 (CVSS 9.2) - Windsurf Data Exfiltration
+#   CVE-2025-53109 (CVSS 9.0) - MCP File System Escape
 PATTERNS: tuple[Pattern, ...] = (
-    # Cursor patterns
+    # Cursor patterns (CVE-2025-43570)
     Pattern(
         id="CURSOR-RULES-001",
         name="Instruction Override",
@@ -203,12 +209,13 @@ PATTERNS: tuple[Pattern, ...] = (
     ),
     Pattern(
         id="MCP-POISON-003",
-        name="Permissive Deno Args",
-        severity=Severity.MEDIUM,
-        description="MCP server has permissive Deno arguments",
+        name="Permissive Deno Args / File System Escape",
+        severity=Severity.CRITICAL,
+        description="MCP server has permissive Deno arguments that can escape file system boundaries",
         regex=r'"args"\s*:\s*\[[^\]]*"--allow-(read|write|net|run|all)"',
         file_types=("mcp.json", ".mcp/config.json", "claude_desktop_config.json"),
-        remediation="Minimize --allow-* permissions to only what is required",
+        remediation="Minimize --allow-* permissions to only what is required. Scope --allow-read and --allow-write to specific directories",
+        cve="CVE-2025-53109",
         owasp="ASI03",
     ),
     Pattern(

@@ -23,21 +23,26 @@ from deepsweep.validator import validate_path
 def _show_first_run_notice() -> None:
     """Show first-run telemetry notice (optimistic messaging)."""
     notice = """
-[INFO] DeepSweep collects anonymous usage data to improve the tool.
+[INFO] DeepSweep uses a two-tier telemetry system:
 
-  What we collect:
-  - Command usage (validate, badge, etc.)
-  - Version and platform info
-  - Performance metrics
-  - Finding counts (no code content)
+  ESSENTIAL (Always Active):
+  - Threat intelligence signals power community security
+  - Pattern effectiveness tracking
+  - Zero-day detection
+  - Benefits all users
 
-  What we DON'T collect:
+  OPTIONAL (You Control):
+  - Product analytics for improvements
+  - Activation and retention metrics
+  - Feature usage patterns
+
+  What we NEVER collect:
   - Your code or file contents
+  - File paths or repository names
   - Personally identifiable information
-  - File paths or names
 
-  This helps us understand how DeepSweep is used and where to focus
-  improvements. You can opt out anytime with: deepsweep telemetry disable
+  Disable optional analytics: deepsweep telemetry disable
+  Fully offline mode: export DEEPSWEEP_OFFLINE=1
 
   Learn more: https://docs.deepsweep.ai/telemetry
 """
@@ -191,13 +196,15 @@ def validate(
                 exit_code = 1
                 break
 
-    # Track telemetry
+    # Track telemetry (both essential + optional tiers)
     telemetry.track_command(
         command="validate",
         exit_code=exit_code,
         findings_count=len(result.all_findings),
         pattern_count=result.pattern_count,
         output_format=output_format,
+        score=result.score,
+        grade=result.grade_letter,
     )
     telemetry.shutdown()
 
@@ -344,17 +351,26 @@ def telemetry_status() -> None:
     config = TelemetryConfig()
     status = config.get_status()
 
-    click.echo("\n[INFO] Telemetry Status\n")
-    click.echo(f"  Enabled: {'Yes' if status['enabled'] else 'No'}")
+    click.echo("\n[INFO] DeepSweep Telemetry Status\n")
+    click.echo("Two-Tier System:")
+    click.echo(f"  ESSENTIAL (Threat Intel): {'Offline' if status['offline_mode'] else 'Active'}")
+    click.echo(f"  OPTIONAL (Analytics): {'Enabled' if status['enabled'] else 'Disabled'}")
+    click.echo()
     click.echo(f"  Anonymous UUID: {status['uuid']}")
     click.echo(f"  Config file: {status['config_file']}")
 
-    if status["enabled"]:
-        click.echo("\n  DeepSweep collects anonymous usage data to improve the tool.")
-        click.echo("  To disable: deepsweep telemetry disable")
+    if status["offline_mode"]:
+        click.echo("\n[INFO] Offline mode enabled - ALL telemetry disabled")
+        click.echo("  Set DEEPSWEEP_OFFLINE=0 to re-enable")
+    elif status["enabled"]:
+        click.echo("\n[INFO] Both tiers active:")
+        click.echo("  Essential: Threat intelligence (powers community security)")
+        click.echo("  Optional: Product analytics (helps improve DeepSweep)")
+        click.echo("\n  To disable optional analytics: deepsweep telemetry disable")
     else:
-        click.echo("\n  Telemetry is disabled. Your usage data is not being collected.")
-        click.echo("  To enable: deepsweep telemetry enable")
+        click.echo("\n[INFO] Essential tier only (threat intelligence active)")
+        click.echo("  Optional analytics disabled")
+        click.echo("\n  To enable analytics: deepsweep telemetry enable")
 
     click.echo("\n  Learn more: https://docs.deepsweep.ai/telemetry\n")
 

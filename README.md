@@ -24,7 +24,7 @@ deepsweep validate .
 Expected output:
 
 ```
-DeepSweep v1.1.0
+DeepSweep v1.2.0
 Security Gateway for AI Coding Assistants
 Ship with vibes. Ship secure.
 
@@ -150,50 +150,67 @@ deepsweep telemetry enable       # Opt back in
 
 ## Telemetry & Privacy
 
-DeepSweep collects **anonymous usage data** to improve the tool. This helps us
-understand how DeepSweep is used and where to focus improvements.
+DeepSweep uses a **two-tier telemetry system** following Snyk's model.
 
-### What We Collect
+### TIER 1: Essential (Always Active)
 
-- Command usage (validate, badge, patterns)
-- Version and platform information
-- Performance metrics (duration, exit codes)
-- Finding counts (aggregated, no details)
+**Threat Intelligence** - Powers the community security flywheel:
 
-### What We DON'T Collect
+- Pattern effectiveness tracking
+- Attack trend analysis
+- Zero-day detection
+- Network effect moat
 
-- Your code or file contents
-- File paths or names
-- Finding details or patterns matched
-- Personally identifiable information (PII)
-- Project or organization names
+Every validation contributes anonymous signals that strengthen the pattern database
+for all users. This is the core moat - the more DeepSweep is used, the better it
+gets for everyone.
 
-### How to Opt Out
+**What's collected:**
+- Pattern match counts (no code, no paths)
+- CVE detection rates
+- Severity distributions
+- Tool/platform context
 
-Telemetry is **opt-out** (industry standard, like Snyk and Vercel CLI):
+**Always sent unless:** `DEEPSWEEP_OFFLINE=1` (for air-gapped environments)
+
+### TIER 2: Optional (You Control)
+
+**Product Analytics** - PostHog for improvements:
+
+- Activation and retention metrics
+- Feature usage patterns
+- Performance data
+- Funnel optimization
+
+**Disable optional analytics:**
 
 ```bash
 deepsweep telemetry disable
 ```
 
-You can re-enable anytime:
+**Re-enable anytime:**
 
 ```bash
 deepsweep telemetry enable
 ```
 
-Your telemetry preference is stored locally in `~/.deepsweep/config.json`.
+Config stored in `~/.deepsweep/config.json`.
 
-### Why Telemetry Matters
+### What We NEVER Collect
 
-Anonymous telemetry helps us:
-- Identify which commands need better performance
-- Understand platform distribution for testing priorities
-- Detect error patterns to improve reliability
-- Track activation metrics to improve onboarding
+- Your code or file contents
+- File paths or repository names
+- Finding details or patterns matched
+- Personally identifiable information (PII)
+- API keys, tokens, or secrets
 
-We follow the same privacy-first approach as leading CLI tools. Your privacy
-is paramount.
+### Why Two Tiers?
+
+**Essential tier** creates network effects: More users → Better patterns → Safer for everyone
+
+**Optional tier** helps us prioritize: Which features matter? Where to optimize?
+
+We follow the same privacy-first approach as Snyk, Vercel CLI, and GitHub CLI.
 
 For more details, see [docs/POSTHOG_SETUP.md](docs/POSTHOG_SETUP.md).
 
