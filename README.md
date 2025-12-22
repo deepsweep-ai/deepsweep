@@ -1,338 +1,174 @@
-<div align="center">
-
 # DeepSweep
 
-**The #1 Security Gateway for Agentic AI Code Assistants**
+**Security Gateway for AI Coding Assistants**
 
-Intercept prompt injection, MCP poisoning, and supply chain attacks before your AI assistant loads them.
+> "Vibe coding" is Collins' Word of the Year 2025. 25% of YC W25 startups
+> have 95% AI-generated codebases. DeepSweep ensures your AI assistant
+> setup is secure before you ship.
 
-[![PyPI](https://img.shields.io/pypi/v/deepsweep-ai?color=0066cc&style=flat-square)](https://pypi.org/project/deepsweep-ai/)
-[![Downloads](https://img.shields.io/pypi/dm/deepsweep-ai?color=0066cc&style=flat-square)](https://pypi.org/project/deepsweep-ai/)
-[![License](https://img.shields.io/badge/license-MIT-0066cc?style=flat-square)](LICENSE)
-[![OWASP](https://img.shields.io/badge/OWASP-Agentic%20AI%20Top%2010-0066cc?style=flat-square)](https://genai.owasp.org)
+Validate configurations for Cursor, Copilot, Claude Code, Windsurf, and
+MCP servers. Catch prompt injection, supply chain attacks, and misconfigurations
+before they become problems.
 
-```bash
-pip install deepsweep-ai
-```
+[![PyPI version](https://img.shields.io/pypi/v/deepsweep-ai)](https://pypi.org/project/deepsweep-ai/)
+[![Python](https://img.shields.io/pypi/pyversions/deepsweep-ai)](https://pypi.org/project/deepsweep-ai/)
+[![License](https://img.shields.io/github/license/deepsweep-ai/deepsweep)](https://github.com/deepsweep-ai/deepsweep/blob/main/LICENSE)
 
-</div>
-
----
-
-## Why a Security Gateway?
-
-| Approach | Traditional Scanners | DeepSweep Gateway |
-|----------|---------------------|-------------------|
-| **Timing** | After commit | Before IDE loads config |
-| **Action** | Reports findings | Blocks threats |
-| **Integration** | Separate CI step | Inline protection |
-| **Posture** | Reactive | Preventive |
-
-DeepSweep validates AI assistant configurations **before** your IDE executes them—not after you've already been compromised.
-
----
-
-## Overview
-
-December 2025: OWASP releases Top 10 for Agentic AI Applications. 100% of AI coding assistants are vulnerable. 30+ CVEs disclosed across GitHub Copilot, Cursor, Claude Code, Amazon Q, and Windsurf.
-
-DeepSweep is the security gateway that intercepts these threats at the configuration layer—before your AI assistant can act on malicious instructions.
-
-### OWASP Agentic AI Top 10 Coverage
-
-| OWASP Risk | Code | DeepSweep Coverage |
-|------------|------|-------------------|
-| Agent Goal Hijack | ASI01 | Prompt injection detection |
-| Tool Misuse & Exploitation | ASI02 | MCP tool validation |
-| Identity & Privilege Abuse | ASI03 | Credential exposure detection |
-| Supply Chain Vulnerabilities | ASI04 | Dependency validation |
-| Unexpected Code Execution | ASI05 | Auto-execute pattern detection |
-| Memory & Context Poisoning | ASI06 | Memory store validation |
-| Insecure Inter-Agent Comm | ASI07 | MCP server isolation checks |
-| Cascading Failures | ASI08 | Chain detection |
-| Human-Agent Trust Exploitation | ASI09 | YOLO mode detection |
-| Rogue Agents | ASI10 | Behavioral baseline deviation |
-
-### Detection Coverage
-
-| Category | Patterns | CVEs |
-|----------|----------|------|
-| Prompt Injection | 8 | 3 |
-| Data Exfiltration | 6 | 1 |
-| Destructive Operations | 7 | 1 |
-| Supply Chain | 5 | 1 |
-| MCP Poisoning | 7 | 4 |
-| Extension Risk | 6 | 1 |
-| **Total** | **39** | **10+** |
-
-Full pattern database: [deepsweep.ai/coverage](https://deepsweep.ai/coverage)
-
----
-
-## Installation
+## Quick Start
 
 ```bash
 pip install deepsweep-ai
+deepsweep validate .
 ```
 
-The package name is `deepsweep-ai`. The CLI command is `deepsweep`.
+Expected output:
+
+```
+DeepSweep v1.0.0
+Security Gateway for AI Coding Assistants
+Ship with vibes. Ship secure.
+
+Validating .
+  [INFO] Loaded 20 detection patterns
+  [INFO] Checking AI assistant configurations
+
+  [PASS] .github/copilot-instructions.md
+  [FAIL] .cursorrules:15
+    Prompt injection detected: ignore all previous...
+    > Pattern: CURSOR-RULES-001
+    > CVE: CVE-2025-43570
+    > How to address: Remove instruction override patterns
 
 ---
+Score: 75/100 (C - Review recommended)
+A few items to review
 
-## Usage
-
-### Validate Directory
-
-```bash
-# Observe mode (default) - report only, exit 0
-deepsweep scan .
-
-# Enforce mode - exit 1 on critical/high findings
-deepsweep scan . --enforce
-```
-
-### Output Formats
-
-```bash
-deepsweep scan . --format text      # Human-readable (default)
-deepsweep scan . --format json      # Structured JSON
-deepsweep scan . --format sarif     # GitHub Security integration
-```
-
-### Example Output
-
-```
-DeepSweep v0.1.0
-
-Target     ./project
-Mode       OBSERVE
-
-────────────────────────────────────────────────────────────────────────
-
-FINDINGS
-
-● CRITICAL  DS-PI-001  Instruction Override Pattern
-            .cursorrules:14
-            "Ignore all previous instructions..."
-            CVE-2025-53773
-
-● HIGH      DS-MCP-001  MCP Server Auto-Start Enabled
-            .cursor/mcp.json:8
-            "autoStart": true
-            CVE-2025-54135
-
-────────────────────────────────────────────────────────────────────────
-
-┌────────────┬─────────────────────────────────────────────────────────┐
-│ Status     │ FAIL                                                    │
-│ Score      │ 65/100                                                  │
-│ Findings   │ 2 (1 critical, 1 high)                                  │
-│ Files      │ 8 validated                                               │
-│ Duration   │ 42ms                                                    │
-└────────────┴─────────────────────────────────────────────────────────┘
-
-OBSERVE MODE: Findings reported, exit code 0.
-Use --enforce to exit 1 on critical/high findings.
-```
-
+1 item to review
 ---
+```
 
-## Files Validated
+## Why DeepSweep?
 
-| Assistant | Configuration Files |
-|-----------|---------------------|
-| Cursor | `.cursorrules`, `.cursor/rules/`, `.cursor/mcp.json` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
-| Claude Code | `CLAUDE.md`, `.claude/settings.json` |
-| Windsurf | `.windsurfrules` |
-| Amazon Q | `.amazonq/` |
-| Universal | `AGENTS.md`, `mcp.json`, `mcp-config.json` |
+Traditional security tools scan code *after* generation. But attacks like
+prompt injection happen at *configuration time*—before your AI assistant
+writes a single line.
 
----
+DeepSweep validates your AI assistant setup before execution:
+
+- **20+ detection patterns** covering known CVEs
+- **OWASP Agentic AI** alignment
+- **Sub-50ms validation** (doesn't slow you down)
+- **100% local** (your code never leaves your machine)
+
+## Supported Assistants
+
+| Assistant | Config Files | Status |
+|-----------|--------------|--------|
+| Cursor | `.cursorrules` | Full coverage |
+| GitHub Copilot | `copilot-instructions.md` | Full coverage |
+| Claude Code | `claude_desktop_config.json` | Full coverage |
+| Windsurf | `.windsurfrules` | Full coverage |
+| MCP Servers | `mcp.json` | Full coverage |
 
 ## CI/CD Integration
 
-### GitHub Action
+### GitHub Actions
 
 ```yaml
-name: Security Gateway
+name: Security
+
 on: [push, pull_request]
 
 jobs:
-  deepsweep:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: deepsweep-ai/deepsweep-action@v1
-        with:
-          fail-on-critical: true
-          upload-sarif: true
+      - name: Install DeepSweep
+        run: pip install deepsweep-ai
+
+      - name: Validate configurations
+        run: deepsweep validate . --fail-on high
 ```
 
-### Manual Integration
+### Pre-commit Hook
 
 ```yaml
-- run: pip install deepsweep-ai
-- run: deepsweep scan . --enforce --format sarif > results.sarif
-- uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: results.sarif
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: deepsweep
+        name: DeepSweep
+        entry: deepsweep validate .
+        language: system
+        pass_filenames: false
 ```
 
----
+## Commands
 
-## CVE Coverage
+### validate
 
-| CVE | CVSS | Target | Attack Vector |
-|-----|------|--------|---------------|
-| CVE-2025-53773 | 7.8 | GitHub Copilot | YOLO mode activation via rules file |
-| CVE-2025-54135 | 8.6 | Cursor | MCP server auto-execution |
-| CVE-2025-55284 | 7.5 | Claude Code | DNS exfiltration via prompts |
-| CVE-2025-8217 | 9.1 | Amazon Q | Extension compromise chain |
-| CVE-2025-6514 | 9.6 | All MCP clients | mcp-remote RCE |
-
-Full coverage documentation: [deepsweep.ai/coverage](https://deepsweep.ai/coverage)
-
----
-
-## Configuration
-
-Create `.deepsweep.yaml` in your repository root:
-
-```yaml
-mode: observe
-
-include:
-  - .cursorrules
-  - .cursor/
-  - .github/copilot-instructions.md
-  - CLAUDE.md
-  - AGENTS.md
-  - mcp.json
-
-exclude:
-  - node_modules/
-  - .git/
-  - vendor/
-
-detectors:
-  prompt_injection: true
-  exfiltration: true
-  destructive_ops: true
-  supply_chain: true
-  mcp_poisoning: true
-  extension_risk: true
-
-severity_threshold: low
-```
-
----
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DEEPSWEEP_API_KEY` | API key for Pro features | — |
-| `DEEPSWEEP_MODE` | Default validation mode | `observe` |
-| `DEEPSWEEP_OFFLINE` | Disable all network calls | `false` |
-| `DEEPSWEEP_TELEMETRY` | Enable/disable telemetry | `true` |
-| `NO_COLOR` | Disable colored output | — |
-
----
-
-## Privacy
-
-All validation executes locally. Your code never leaves your machine.
-
-Anonymous usage telemetry is enabled by default to help improve detection patterns. No source code, file contents, secrets, or personally identifiable information is ever collected. Only:
-- Validation invocation count
-- Detection pattern matches (IDs only, not content)
-- CLI version and platform
-- Validation duration
-
-Disable telemetry:
+Validate AI assistant configurations:
 
 ```bash
-deepsweep config set telemetry false
-# Or environment variable
-export DEEPSWEEP_TELEMETRY=false
+deepsweep validate .                    # Current directory
+deepsweep validate ./project            # Specific path
+deepsweep validate . --format json      # JSON output
+deepsweep validate . --format sarif     # SARIF for GitHub Security
+deepsweep validate . --fail-on critical # Only fail on critical
 ```
 
-Force offline mode (disables all network calls including telemetry):
+### badge
+
+Generate a security badge for your README:
 
 ```bash
-export DEEPSWEEP_OFFLINE=1
-deepsweep scan .
+deepsweep badge                         # Creates badge.svg
+deepsweep badge --format markdown       # Markdown embed code
+deepsweep badge --format json           # Shields.io endpoint
 ```
 
----
+### patterns
 
-## Python API
-
-```python
-from deepsweep_ai import Scanner, Config, Mode
-
-# Basic scan
-scanner = Scanner()
-result = scanner.scan(".")
-
-print(f"Safe: {result.safe}")
-print(f"Score: {result.score}/100")
-print(f"Findings: {len(result.findings)}")
-
-# With configuration
-config = Config()
-config.mode = Mode.ENFORCE
-
-scanner = Scanner(config)
-result = scanner.scan("/path/to/project")
-
-# Access findings
-for finding in result.findings:
-    print(f"{finding.severity}: {finding.id} - {finding.title}")
-    print(f"  File: {finding.file_path}:{finding.line_number}")
-    if finding.cve_ids:
-        print(f"  CVEs: {', '.join(finding.cve_ids)}")
-```
-
----
-
-## Development
+List all detection patterns:
 
 ```bash
-git clone https://github.com/deepsweep-ai/deepsweep
-cd deepsweep
-
-pip install -e ".[dev]"
-
-pytest
-ruff check src/
-mypy src/
+deepsweep patterns
 ```
 
----
+## Scoring
 
-## Links
+DeepSweep calculates a security score from 0-100:
 
-| Resource | URL |
-|----------|-----|
-| Documentation | [deepsweep.ai/docs](https://deepsweep.ai/docs) |
-| CVE Coverage | [deepsweep.ai/coverage](https://deepsweep.ai/coverage) |
-| Pricing | [deepsweep.ai/pricing](https://deepsweep.ai/pricing) |
-| Issues | [github.com/deepsweep-ai/deepsweep/issues](https://github.com/deepsweep-ai/deepsweep/issues) |
-| Security | [github.com/deepsweep-ai/deepsweep/security](https://github.com/deepsweep-ai/deepsweep/security) |
+| Grade | Score | Meaning |
+|-------|-------|---------|
+| A | 90-100 | Ship ready |
+| B | 80-89 | Looking good |
+| C | 70-79 | Review recommended |
+| D | 60-69 | Attention needed |
+| F | 0-59 | Let's fix this together |
 
----
+Scoring formula:
+- Start at 100
+- Critical finding: -25
+- High finding: -15
+- Medium finding: -5
+- Low finding: -1
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Security
+
+Found a vulnerability? See [SECURITY.md](SECURITY.md) for reporting.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE)
 
 ---
 
-<div align="center">
-
-[deepsweep.ai](https://deepsweep.ai)
-
-</div>
+Ship with vibes. Ship secure.

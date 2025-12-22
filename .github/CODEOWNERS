@@ -1,0 +1,5 @@
+# Default owners for everything
+* @deepsweep-ai/core
+
+# Security patterns require security team review
+src/deepsweep/patterns.py @deepsweep-ai/security

@@ -5,12 +5,13 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -20,19 +21,25 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install build tools
+      - name: Install build dependencies
         run: pip install build twine
 
       - name: Build package
         run: python -m build
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.whl *.tar.gz > SHA256SUMS
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/SHA256SUMS
           generate_release_notes: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
