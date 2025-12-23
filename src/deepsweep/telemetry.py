@@ -52,7 +52,7 @@ from deepsweep.constants import VERSION
 
 # Threat Intelligence endpoint (Essential tier)
 THREAT_INTEL_ENDPOINT: Final[str] = os.environ.get(
-    "DEEPSWEEP_INTEL_ENDPOINT", "https://intel.deepsweep.ai/v1/signal"
+    "DEEPSWEEP_INTEL_ENDPOINT", "https://api.deepsweep.ai/v1/intel"
 )
 
 # PostHog configuration (Optional tier)
