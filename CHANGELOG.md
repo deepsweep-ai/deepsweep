@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Activation and retention metrics
     - Feature usage patterns
     - Can be disabled with `deepsweep telemetry disable`
-- Threat intelligence endpoint (`https://api.deepsweep.ai/v1/intel`)
+- Threat intelligence endpoint (`https://api.deepsweep.ai/v1/signal`)
 - `DEEPSWEEP_OFFLINE` environment variable for fully offline mode
 - CI detection (GitHub Actions, GitLab CI, CircleCI, Jenkins, etc.)
 - Anonymized install ID generation (irreversible SHA-256 hash)
