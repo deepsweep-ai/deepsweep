@@ -1,0 +1,51 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-PyYAML, pydantic]
+        args: [--strict, --ignore-missing-imports]
+
+  - repo: local
+    hooks:
+      - id: no-emojis
+        name: NO EMOJIS Policy
+        entry: bash -c 'if grep -rP "[\x{1F300}-\x{1F9FF}]" src/ tests/ README.md CHANGELOG.md 2>/dev/null; then echo "[FAIL] Emojis detected - BLOCKING"; exit 1; else echo "[PASS] NO EMOJIS policy enforced"; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: design-standards
+        name: Design Standards Verification
+        entry: bash verify-design-standards.sh
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      - id: deepsweep
+        name: DeepSweep Self-Validation
+        entry: python -m deepsweep validate .
+        language: system
+        pass_filenames: false
+        always_run: true

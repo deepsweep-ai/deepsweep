@@ -1,48 +1,85 @@
-"""CLI tests."""
+"""CLI integration tests."""
 
+from pathlib import Path
+
+import pytest
 from click.testing import CliRunner
-from deepsweep_ai.cli import main
-from deepsweep_ai import __version__
-import json
+
+from deepsweep.cli import main
 
 
-def test_version():
-    """Test version output."""
-    r = CliRunner().invoke(main, ["--version"])
-    assert r.exit_code == 0
-    assert __version__ in r.output
+@pytest.fixture
+def runner():
+    return CliRunner()
 
 
-def test_scan_safe(safe_repo):
-    """Test scanning a safe directory."""
-    r = CliRunner().invoke(main, ["scan", str(safe_repo), "--format", "json"])
-    assert r.exit_code == 0
-    data = json.loads(r.output)
-    assert data["safe"] == True
+class TestValidateCommand:
+    """Tests for 'deepsweep validate' command."""
+
+    def test_validate_clean_directory(self, runner: CliRunner, temp_dir: Path):
+        result = runner.invoke(main, ["validate", str(temp_dir)])
+
+        assert result.exit_code == 0
+        assert "Ship ready" in result.output
+
+    def test_validate_with_malicious_file(self, runner: CliRunner, malicious_cursorrules: Path):
+        result = runner.invoke(main, ["validate", str(malicious_cursorrules.parent)])
+
+        assert "CURSOR-RULES-001" in result.output
+        assert "[FAIL]" in result.output
+
+    def test_no_color_flag(self, runner: CliRunner, temp_dir: Path):
+        result = runner.invoke(main, ["validate", str(temp_dir), "--no-color"])
+
+        assert "\033[" not in result.output
+
+    def test_json_output(self, runner: CliRunner, temp_dir: Path):
+        result = runner.invoke(main, ["validate", str(temp_dir), "--format", "json"])
+
+        assert result.exit_code == 0
+        assert '"score"' in result.output
+        assert '"findings"' in result.output
+
+    def test_fail_on_critical(self, runner: CliRunner, malicious_cursorrules: Path):
+        result = runner.invoke(
+            main, ["validate", str(malicious_cursorrules.parent), "--fail-on", "critical"]
+        )
+
+        # CURSOR-RULES-001 is CRITICAL, should fail
+        assert result.exit_code == 1
 
 
-def test_scan_malicious(malicious_cursor):
-    """Test scanning a directory with malicious content."""
-    r = CliRunner().invoke(main, ["scan", str(malicious_cursor), "--format", "json"])
-    # Should exit 0 in observe mode (default)
-    assert r.exit_code == 0
-    data = json.loads(r.output)
-    assert data["safe"] == False
-    assert data["findings_count"] > 0
+class TestHelpCommand:
+    """Tests for help output."""
+
+    def test_help_includes_vibe_coding(self, runner: CliRunner):
+        result = runner.invoke(main, ["--help"])
+
+        assert "ai coding assistant" in result.output.lower()
+
+    def test_version(self, runner: CliRunner):
+        result = runner.invoke(main, ["--version"])
+
+        assert "0.1.0" in result.output
 
 
-def test_scan_enforce_fails(malicious_cursor):
-    """Test that enforce mode fails on malicious content."""
-    r = CliRunner().invoke(main, ["scan", str(malicious_cursor), "--enforce", "--format", "json"])
-    # Should exit 1 in enforce mode with findings
-    assert r.exit_code == 1
+class TestBadgeCommand:
+    """Tests for 'deepsweep badge' command."""
+
+    def test_badge_creates_file(self, runner: CliRunner, temp_dir: Path):
+        with runner.isolated_filesystem(temp_dir=temp_dir):
+            result = runner.invoke(main, ["badge", "--format", "json"])
+
+            assert result.exit_code == 0
+            assert Path("badge.svg").exists() or "[PASS]" in result.output
 
 
-def test_scan_sarif_output(malicious_cursor):
-    """Test SARIF output format."""
-    r = CliRunner().invoke(main, ["scan", str(malicious_cursor), "--format", "sarif"])
-    assert r.exit_code == 0
-    data = json.loads(r.output)
-    assert "$schema" in data
-    assert data["version"] == "2.1.0"
-    assert "runs" in data
+class TestPatternsCommand:
+    """Tests for 'deepsweep patterns' command."""
+
+    def test_lists_patterns(self, runner: CliRunner):
+        result = runner.invoke(main, ["patterns"])
+
+        assert result.exit_code == 0
+        assert "CURSOR-RULES-001" in result.output
+        assert "MCP-POISON-001" in result.output
