@@ -59,7 +59,21 @@ pytest --cov=src/deepsweep --cov-report=html
 
 # Run specific test file
 pytest tests/test_validator.py
+
+# Run integration tests
+bash test-integration.sh
+
+# Test telemetry system
+bash verify-telemetry.sh
+
+# Test API endpoint
+bash test-api-endpoint.sh
+
+# Test PostHog integration
+python test-posthog.py
 ```
+
+For comprehensive testing documentation, see [docs/TESTING.md](docs/TESTING.md).
 
 ## Code Style
 
