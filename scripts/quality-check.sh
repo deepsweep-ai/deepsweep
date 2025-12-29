@@ -2,7 +2,7 @@
 set -e
 
 echo "============================================================"
-echo "DeepSweep v0.1.0 Quality Verification"
+echo "DeepSweep v1.2.0 Quality Verification"
 echo "Elite OSS Standards Compliance Check"
 echo "============================================================"
 echo ""
@@ -69,7 +69,7 @@ echo ""
 
 # 6. Documentation
 echo "=== Documentation ==="
-run_check "Version consistency" "grep -q '0.1.0' pyproject.toml && grep -q '0.1.0' src/deepsweep/__init__.py && grep -q '0.1.0' README.md"
+run_check "Version consistency" "grep -q '1.2.0' pyproject.toml && grep -q '1.2.0' src/deepsweep/__init__.py && grep -q '1.2.0' README.md"
 run_check "README completeness" "grep -q 'Quick Start' README.md && grep -q 'Installation' README.md && grep -q 'Privacy & Telemetry' README.md"
 run_check "SECURITY.md exists" "test -f SECURITY.md && grep -q 'Reporting Vulnerabilities' SECURITY.md"
 run_check "CONTRIBUTING.md exists" "test -f CONTRIBUTING.md && grep -q 'NO EMOJIS' CONTRIBUTING.md"

@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "=== DeepSweep v0.1.0 Integration Tests ==="
+echo "=== DeepSweep v1.2.0 Integration Tests ==="
 
 # 1. Clean slate
 rm -rf ~/.deepsweep/
-echo "[PASS] A - Ship ready"
+echo "[PASS] Clean environment"
 
 # 2. First run
 OUTPUT=$(python3 -m deepsweep validate . 2>&1)
@@ -26,7 +26,7 @@ echo "$STATUS" | grep -q "Offline mode enabled" && echo "[PASS] Offline mode det
 unset DEEPSWEEP_OFFLINE
 
 # 6. Verify version
-python3 -m deepsweep --version | grep -q "0.1.0" && echo "[PASS] Version correct"
+python3 -m deepsweep --version | grep -q "1.2.0" && echo "[PASS] Version correct"
 
 # 7. Test all output formats
 python3 -m deepsweep validate . --format text > /dev/null && echo "[PASS] Text output"

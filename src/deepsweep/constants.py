@@ -10,7 +10,7 @@ Design Standards:
 from typing import Final
 
 # Version
-VERSION: Final[str] = "0.1.0"
+VERSION: Final[str] = "1.2.0"
 
 # ASCII Symbols - NO EMOJIS
 SYMBOL_PASS: Final[str] = "[PASS]"
