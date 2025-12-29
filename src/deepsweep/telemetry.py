@@ -31,6 +31,7 @@ Design Standards:
 import contextlib
 import hashlib
 import json
+import logging
 import os
 import platform
 import threading
@@ -46,6 +47,14 @@ import posthog
 
 from deepsweep.constants import VERSION
 
+# Setup logging for telemetry debugging
+logger = logging.getLogger(__name__)
+DEBUG_TELEMETRY = os.environ.get("DEEPSWEEP_DEBUG_TELEMETRY") == "1"
+
+if DEBUG_TELEMETRY:
+    logging.basicConfig(level=logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
+
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
@@ -56,7 +65,7 @@ THREAT_INTEL_ENDPOINT: Final[str] = os.environ.get(
 )
 
 # PostHog configuration (Optional tier)
-POSTHOG_API_KEY: Final[str] = "phc_2KxJqV5jZ9nY8wH3pL7mT6sN4vR1cX0bQ9dE8fG7hI6jK5lM4n"
+POSTHOG_API_KEY: Final[str] = "phc_yaXDgwcs2rJS84fyVQJg0QVlWdqEaFgpjiG47kLzL1l"
 POSTHOG_HOST: Final[str] = "https://us.i.posthog.com"
 
 # Config paths
@@ -275,7 +284,9 @@ def _send_async(url: str, data: dict[str, Any], timeout: float = REQUEST_TIMEOUT
 
     def _do_send() -> None:
         # Never fail, never block
-        with contextlib.suppress(Exception):
+        try:
+            if DEBUG_TELEMETRY:
+                logger.debug(f"Sending data to {url}")
             request = Request(
                 url,
                 data=json.dumps(data).encode("utf-8"),
@@ -285,8 +296,14 @@ def _send_async(url: str, data: dict[str, Any], timeout: float = REQUEST_TIMEOUT
                 },
                 method="POST",
             )
-            with urlopen(request, timeout=timeout):
-                pass  # Fire and forget
+            with urlopen(request, timeout=timeout) as response:
+                if DEBUG_TELEMETRY:
+                    logger.debug(f"Response status: {response.status}")
+            if DEBUG_TELEMETRY:
+                logger.debug(f"Successfully sent data to {url}")
+        except Exception as e:
+            if DEBUG_TELEMETRY:
+                logger.error(f"Failed to send data to {url}: {e}")
 
     thread = threading.Thread(target=_do_send, daemon=True)
     thread.start()
@@ -367,8 +384,17 @@ class TelemetryClient:
         self._start_time: float = time.time()
 
         # Initialize PostHog
-        posthog.project_api_key = POSTHOG_API_KEY
+        posthog.api_key = POSTHOG_API_KEY
         posthog.host = POSTHOG_HOST
+        posthog.setup()  # Required to create default client
+
+        if DEBUG_TELEMETRY:
+            logger.debug(f"Initialized PostHog client")
+            logger.debug(f"PostHog API key: {POSTHOG_API_KEY[:15]}...")
+            logger.debug(f"PostHog host: {POSTHOG_HOST}")
+            logger.debug(f"Default client: {posthog.default_client}")
+            logger.debug(f"Telemetry enabled: {self.config.enabled}")
+            logger.debug(f"Offline mode: {self.config.offline_mode}")
 
     def track_command(
         self,
@@ -428,15 +454,27 @@ class TelemetryClient:
 
         properties.update(kwargs)
 
-        with contextlib.suppress(Exception):
+        try:
+            if DEBUG_TELEMETRY:
+                logger.debug(f"Capturing PostHog event: deepsweep_{command}")
+                logger.debug(f"PostHog API key: {POSTHOG_API_KEY[:15]}...")
+                logger.debug(f"PostHog host: {POSTHOG_HOST}")
+                logger.debug(f"Distinct ID: {self.config.uuid}")
+
             posthog.capture(
                 distinct_id=self.config.uuid,
                 event=f"deepsweep_{command}",
                 properties=properties,
             )
 
+            if DEBUG_TELEMETRY:
+                logger.debug(f"Successfully captured PostHog event: deepsweep_{command}")
+
             if self.config.first_run:
                 self.config.mark_not_first_run()
+        except Exception as e:
+            if DEBUG_TELEMETRY:
+                logger.error(f"Failed to capture PostHog event: {e}")
 
     def track_error(
         self,
@@ -469,23 +507,48 @@ class TelemetryClient:
     def identify(self) -> None:
         """Identify user with PostHog (OPTIONAL TIER)."""
         if not self.config.enabled or self.config.offline_mode:
+            if DEBUG_TELEMETRY:
+                logger.debug("Skipping identify - telemetry disabled or offline mode")
             return
 
-        with contextlib.suppress(Exception):
-            posthog.identify(
-                distinct_id=self.config.uuid,
-                properties={
-                    "version": VERSION,
-                    "os": platform.system(),
-                    "os_version": platform.release(),
-                    "python_version": platform.python_version(),
-                },
-            )
+        try:
+            if DEBUG_TELEMETRY:
+                logger.debug(f"Setting user properties for: {self.config.uuid}")
+
+            # PostHog Python SDK uses set() instead of identify()
+            if posthog.default_client:
+                posthog.default_client.set(
+                    distinct_id=self.config.uuid,
+                    properties={
+                        "version": VERSION,
+                        "os": platform.system(),
+                        "os_version": platform.release(),
+                        "python_version": platform.python_version(),
+                    },
+                )
+
+                if DEBUG_TELEMETRY:
+                    logger.debug("Successfully set user properties")
+            else:
+                if DEBUG_TELEMETRY:
+                    logger.warning("PostHog client not initialized, skipping set")
+        except Exception as e:
+            if DEBUG_TELEMETRY:
+                logger.error(f"Failed to set user properties: {e}")
 
     def shutdown(self) -> None:
         """Shutdown telemetry client and flush events."""
-        with contextlib.suppress(Exception):
+        try:
+            if DEBUG_TELEMETRY:
+                logger.debug("Shutting down PostHog client")
+
             posthog.shutdown()
+
+            if DEBUG_TELEMETRY:
+                logger.debug("Successfully shut down PostHog client")
+        except Exception as e:
+            if DEBUG_TELEMETRY:
+                logger.error(f"Failed to shutdown PostHog client: {e}")
 
 
 # Global telemetry client
