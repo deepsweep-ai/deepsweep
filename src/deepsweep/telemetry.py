@@ -56,8 +56,11 @@ THREAT_INTEL_ENDPOINT: Final[str] = os.environ.get(
 )
 
 # PostHog configuration (Optional tier)
-POSTHOG_API_KEY: Final[str] = "phc_2KxJqV5jZ9nY8wH3pL7mT6sN4vR1cX0bQ9dE8fG7hI6jK5lM4n"
-POSTHOG_HOST: Final[str] = "https://us.i.posthog.com"
+# Can be overridden with environment variables for production deployment
+POSTHOG_API_KEY: Final[str] = os.environ.get(
+    "POSTHOG_API_KEY", "phc_2KxJqV5jZ9nY8wH3pL7mT6sN4vR1cX0bQ9dE8fG7hI6jK5lM4n"
+)
+POSTHOG_HOST: Final[str] = os.environ.get("POSTHOG_HOST", "https://us.i.posthog.com")
 
 # Config paths
 CONFIG_DIR: Final[Path] = Path.home() / ".deepsweep"
@@ -366,8 +369,8 @@ class TelemetryClient:
         self.config = TelemetryConfig()
         self._start_time: float = time.time()
 
-        # Initialize PostHog
-        posthog.project_api_key = POSTHOG_API_KEY
+        # Initialize PostHog (use correct attribute names)
+        posthog.api_key = POSTHOG_API_KEY
         posthog.host = POSTHOG_HOST
 
     def track_command(
