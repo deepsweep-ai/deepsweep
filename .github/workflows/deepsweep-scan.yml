@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Security Scan
         run: |
-          deepsweep scan . --format sarif --output deepsweep.sarif
+          deepsweep validate . --format sarif --output deepsweep.sarif --fail-on high
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4

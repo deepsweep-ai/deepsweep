@@ -19,8 +19,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install pip-audit
         run: pip install pip-audit
 
-      - name: Run pip-audit
-        run: pip-audit
+      - name: Run pip-audit on project dependencies
+        run: pip-audit .
