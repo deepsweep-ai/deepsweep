@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "deepsweep-ai"
 version = "0.1.0"
-description = "Security Gateway for AI Coding Assistants. Validate Cursor, Copilot, Claude Code, Windsurf, and MCP configurations."
+description = "Privacy-preserving security gateway validating AI assistant configurations before execution. Prevents prompt injection, MCP poisoning, and supply chain attacks across Cursor, Copilot, Claude Code, Windsurf, and MCP servers."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -24,8 +24,10 @@ keywords = [
     "windsurf",
     "mcp",
     "validation",
-    "linting",
-    "vibe-coding"
+    "agentic",
+    "prompt-injection",
+    "supply-chain",
+    "security-gateway"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

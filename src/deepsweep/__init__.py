@@ -1,8 +1,12 @@
 """
-DeepSweep - Security Gateway for AI Coding Assistants.
+DeepSweep - The #1 Security Gateway for Agentic AI Code Assistants.
 
-Validate configurations for Cursor, Copilot, Claude Code, Windsurf,
-and MCP servers before they execute.
+Privacy-preserving validation for AI assistant configurations, preventing
+prompt injection, MCP poisoning, and supply chain attacks before execution.
+
+Validates MCP (Model Context Protocol), AG-UI (Agent-User Interface), and
+A2A (Agent-to-Agent) protocols across Cursor, Copilot, Claude Code, Windsurf,
+and MCP servers.
 """
 
 from deepsweep.exceptions import DeepSweepError, PatternError, ValidationError

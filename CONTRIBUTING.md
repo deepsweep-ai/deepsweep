@@ -132,6 +132,9 @@ Pattern(
 - **Optimistic tone**: "items to review" not "vulnerabilities detected"
 - **Actionable guidance**: "How to address" not "Fix immediately"
 - **Professional**: No hype, no marketing speak, no exaggeration
+- **Data-driven**: Use specific metrics (48% vulnerability rate, market data) instead of vague claims
+- **Technical authority**: Reference protocol specifications (MCP, AG-UI, A2A), test coverage, benchmarks
+- **Privacy-first**: Emphasize privacy-preserving architecture, anonymous telemetry, no source code transmission
 - See README for examples
 
 ### Terminology
@@ -139,6 +142,9 @@ Pattern(
 - Use **"validate"** not "scan"
 - Use **"findings"** or "items to review" not "vulnerabilities"
 - Use **"How to address"** not "Fix" or "Remediation"
+- Use **"blocking/quarantine"** not "detection"
+- Use **"security gateway"** not "security tool"
+- Use **"secure at inception"** not "shift-left"
 
 ---
 

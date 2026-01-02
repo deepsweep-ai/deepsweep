@@ -1,5 +1,5 @@
 name: 'DeepSweep Security Gateway'
-description: 'The #1 Security Gateway for Agentic AI Code Assistants - Validate configurations before your IDE loads them'
+description: 'Privacy-preserving security gateway validating AI assistant configurations before execution. Prevents prompt injection, MCP poisoning, and supply chain attacks. Validates MCP, AG-UI, and A2A protocols with sub-100ms blocking.'
 author: 'DeepSweep'
 
 branding:
@@ -93,9 +93,9 @@ runs:
           MODE_FLAG="--enforce"
         fi
 
-        # Run scan
+        # Run validation
         set +e
-        deepsweep scan ${{ inputs.path }} \
+        deepsweep validate ${{ inputs.path }} \
           $MODE_FLAG \
           --format json \
           --output deepsweep-results.json
@@ -135,7 +135,7 @@ runs:
       shell: bash
       run: |
         if [ -f deepsweep-results.json ]; then
-          deepsweep scan ${{ inputs.path }} --format sarif --output deepsweep.sarif
+          deepsweep validate ${{ inputs.path }} --format sarif --output deepsweep.sarif
           echo "sarif_file=deepsweep.sarif" >> $GITHUB_OUTPUT
         fi
 

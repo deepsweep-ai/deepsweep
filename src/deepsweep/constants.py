@@ -21,8 +21,8 @@ SYMBOL_SKIP: Final[str] = "[SKIP]"
 
 # Branding
 PRODUCT_NAME: Final[str] = "DeepSweep"
-TAGLINE: Final[str] = "Security Gateway for AI Coding Assistants"
-SLOGAN: Final[str] = ""
+TAGLINE: Final[str] = "The #1 Security Gateway for Agentic AI Code Assistants"
+SLOGAN: Final[str] = "Ship with vibes. Ship secure."
 
 # URLs
 DOCS_URL: Final[str] = "https://docs.deepsweep.ai"

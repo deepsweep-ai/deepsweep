@@ -1,5 +1,5 @@
-# Example workflow for users - DeepSweep Security Scan
-name: DeepSweep Security Scan
+# Example workflow for users - DeepSweep Security Gateway
+name: DeepSweep Security Gateway
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  security-scan:
+  security-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -21,9 +21,9 @@ jobs:
       - name: Install DeepSweep
         run: pip install deepsweep-ai
 
-      - name: Run Security Scan
+      - name: Run Security Validation
         run: |
-          deepsweep scan . --format sarif --output deepsweep.sarif
+          deepsweep validate . --format sarif --output deepsweep.sarif
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
